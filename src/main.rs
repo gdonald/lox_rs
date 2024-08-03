@@ -1,31 +1,138 @@
+extern crate lazy_static;
+
 use std::cell::Cell;
+use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs;
 use std::io::{self, Write};
-use std::collections::HashMap;
+
 use lazy_static::lazy_static;
 
-extern crate lazy_static;
+#[derive(Debug, Clone)]
+enum Expr {
+    Binary(Box<BinaryExpr>),
+    Grouping(Box<GroupingExpr>),
+    Literal(Box<Literal>),
+    Unary(Box<UnaryExpr>),
+}
+
+#[derive(Debug, Clone)]
+struct BinaryExpr {
+    left: Box<Expr>,
+    operator: Token,
+    right: Box<Expr>,
+}
+
+impl BinaryExpr {
+    fn new(left: Expr, operator: Token, right: Expr) -> Self {
+        Self {
+            left: Box::new(left),
+            operator,
+            right: Box::new(right),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct GroupingExpr {
+    expr: Box<Expr>,
+}
+
+impl GroupingExpr {
+    fn new(expr: Expr) -> Self {
+        Self {
+            expr: Box::new(expr)
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+enum Literal {
+    Str(String),
+    Num(f64),
+}
+
+impl Literal {
+    fn new(value: impl Into<Literal>) -> Self {
+        value.into()
+    }
+}
+
+impl From<String> for Literal {
+    fn from(value: String) -> Self {
+        Literal::Str(value)
+    }
+}
+
+impl From<f64> for Literal {
+    fn from(value: f64) -> Self {
+        Literal::Num(value)
+    }
+}
+
+#[derive(Debug, Clone)]
+struct UnaryExpr {
+    operator: Token,
+    right: Box<Expr>,
+}
+
+impl UnaryExpr {
+    fn new(operator: Token, right: Expr) -> Self {
+        Self {
+            operator,
+            right: Box::new(right),
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum TokenType {
     // Single-character tokens.
-    LeftParen, RightParen, LeftBrace, RightBrace,
-    Comma, Dot, Minus, Plus, Semicolon, Slash, Star,
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Dot,
+    Minus,
+    Plus,
+    Semicolon,
+    Slash,
+    Star,
 
     // One or two character tokens.
-    Bang, BangEqual,
-    Equal, EqualEqual,
-    Greater, GreaterEqual,
-    Less, LessEqual,
+    Bang,
+    BangEqual,
+    Equal,
+    EqualEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
 
     // Literals.
-    Identifier, String, Number,
+    Identifier,
+    String,
+    Number,
 
     // Keywords.
-    And, Class, Else, False, Fun, For, If, Nil, Or,
-    Print, Return, Super, This, True, Var, While,
+    And,
+    Class,
+    Else,
+    False,
+    Fun,
+    For,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
+    Var,
+    While,
 
     Eof,
 }
@@ -53,12 +160,6 @@ impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {} {:?}", self.token_type, self.lexeme, self.literal)
     }
-}
-
-#[derive(Debug, Clone)]
-enum Literal {
-    Str(String),
-    Num(f64),
 }
 
 impl fmt::Display for TokenType {
@@ -134,7 +235,7 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 1,
-            error
+            error,
         }
     }
 
@@ -157,14 +258,23 @@ impl Scanner {
 
         match c {
             '(' => self.add_token(TokenType::LeftParen),
+            
             ')' => self.add_token(TokenType::RightParen),
+
             '{' => self.add_token(TokenType::LeftBrace),
+
             '}' => self.add_token(TokenType::RightBrace),
+
             ',' => self.add_token(TokenType::Comma),
+
             '.' => self.add_token(TokenType::Dot),
+
             '-' => self.add_token(TokenType::Minus),
+
             '+' => self.add_token(TokenType::Plus),
+
             ';' => self.add_token(TokenType::Semicolon),
+
             '*' => self.add_token(TokenType::Star),
 
             '!' => {
@@ -174,7 +284,8 @@ impl Scanner {
                     TokenType::Bang
                 };
                 self.add_token(token_type);
-            },
+            }
+
             '=' => {
                 let token_type = if self.match_char('=') {
                     TokenType::EqualEqual
@@ -182,7 +293,8 @@ impl Scanner {
                     TokenType::Equal
                 };
                 self.add_token(token_type);
-            },
+            }
+
             '<' => {
                 let token_type = if self.match_char('=') {
                     TokenType::LessEqual
@@ -190,7 +302,8 @@ impl Scanner {
                     TokenType::Less
                 };
                 self.add_token(token_type);
-            },
+            }
+
             '>' => {
                 let token_type = if self.match_char('=') {
                     TokenType::GreaterEqual
@@ -198,7 +311,8 @@ impl Scanner {
                     TokenType::Greater
                 };
                 self.add_token(token_type);
-            },
+            }
+
             '/' => {
                 if self.match_char('/') {
                     // A comment goes until the end of the line.
@@ -208,18 +322,19 @@ impl Scanner {
                 } else {
                     self.add_token(TokenType::Slash);
                 }
-            },
+            }
 
-            ' ' => {},
-            '\r' => {},
-            '\t' => {},
+            ' ' => {}
+
+            '\r' => {}
+
+            '\t' => {}
 
             '\n' => self.line += 1,
 
             '"' => self.string(),
 
             _ => {
-
                 if self.is_digit(c) {
                     self.number();
                 } else if self.is_alpha(c) {
