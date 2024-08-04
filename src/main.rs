@@ -1,12 +1,12 @@
 extern crate lox_rs;
 
 use std::env;
-use std::io::{self, Write};
+use std::io::{self};
 
 use lox_rs::{run_file, run_prompt};
 
 mod ast;
-mod printer;
+mod ast_printer;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();

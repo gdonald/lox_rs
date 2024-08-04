@@ -1,9 +1,9 @@
-use std::{fs, io};
-use std::io::Write;
 use crate::ast::scanner::{Scanner, ScannerError};
+use std::io::Write;
+use std::{fs, io};
 
 pub mod ast;
-pub mod printer;
+pub mod ast_printer;
 
 pub fn run_file(path: &str) -> io::Result<()> {
     let contents = fs::read_to_string(path)?;
