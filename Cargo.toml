@@ -1,7 +1,10 @@
 [package]
-name = "lox"
+name = "lox_rs"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
 lazy_static = "1.5.0"

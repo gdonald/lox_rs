@@ -55,10 +55,10 @@ pub enum TokenType {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub(crate) token_type: TokenType,
-    pub(crate) lexeme: String,
-    pub(crate) literal: Option<LiteralExpr>,
-    pub(crate) line: usize,
+    pub token_type: TokenType,
+    pub lexeme: String,
+    pub literal: Option<LiteralExpr>,
+    pub line: usize,
 }
 
 impl Token {

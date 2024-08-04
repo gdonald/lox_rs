@@ -1,2 +1,2 @@
-# lox-rs
+# lox_rs
 Lox written in Rust

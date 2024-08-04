@@ -2,7 +2,7 @@ use crate::ast::token::Token;
 use crate::ast::visitor::ExprVisitor;
 
 #[derive(Debug, Clone)]
-pub(crate) enum Expr {
+pub enum Expr {
     Binary(Box<BinaryExpr>),
     Grouping(Box<GroupingExpr>),
     Literal(Box<LiteralExpr>),
@@ -25,10 +25,10 @@ impl Expr {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BinaryExpr {
-    pub(crate) left: Box<Expr>,
-    pub(crate) operator: Token,
-    pub(crate) right: Box<Expr>,
+pub struct BinaryExpr {
+    pub left: Box<Expr>,
+    pub operator: Token,
+    pub right: Box<Expr>,
 }
 
 impl BinaryExpr {
@@ -42,8 +42,8 @@ impl BinaryExpr {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct GroupingExpr {
-    pub(crate) expr: Box<Expr>,
+pub struct GroupingExpr {
+    pub expr: Box<Expr>,
 }
 
 impl GroupingExpr {
@@ -55,7 +55,7 @@ impl GroupingExpr {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum LiteralExpr {
+pub enum LiteralExpr {
     Str(String),
     Num(f64),
     Nil,
@@ -80,9 +80,9 @@ impl From<f64> for LiteralExpr {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct UnaryExpr {
-    pub(crate) operator: Token,
-    pub(crate) right: Box<Expr>,
+pub struct UnaryExpr {
+    pub operator: Token,
+    pub right: Box<Expr>,
 }
 
 impl UnaryExpr {

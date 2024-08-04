@@ -1,4 +1,6 @@
-extern crate lox;
+use lox_rs::ast::expr::{Expr, BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr};
+use lox_rs::ast::token::{Token, TokenType};
+use lox_rs::printer::AstPrinter;
 
 #[test]
 fn test_ast_printer() {

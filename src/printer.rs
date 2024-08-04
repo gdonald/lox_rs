@@ -1,9 +1,9 @@
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 
-pub(crate) struct AstPrinter;
+pub struct AstPrinter;
 
 impl AstPrinter {
-    pub(crate) fn print(&mut self, expr: &Expr) -> String {
+    pub fn print(&mut self, expr: &Expr) -> String {
         expr.accept(self)
     }
 
