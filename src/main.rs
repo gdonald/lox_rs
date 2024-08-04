@@ -1,172 +1,17 @@
 extern crate lazy_static;
-
 use std::cell::Cell;
 use std::collections::HashMap;
-use std::env;
-use std::fmt;
 use std::fs;
 use std::io::{self, Write};
 
 use lazy_static::lazy_static;
 
-#[derive(Debug, Clone)]
-enum Expr {
-    Binary(Box<BinaryExpr>),
-    Grouping(Box<GroupingExpr>),
-    Literal(Box<Literal>),
-    Unary(Box<UnaryExpr>),
-}
+use crate::ast::expr::LiteralExpr;
+use crate::ast::token::{Token, TokenType};
 
-#[derive(Debug, Clone)]
-struct BinaryExpr {
-    left: Box<Expr>,
-    operator: Token,
-    right: Box<Expr>,
-}
+mod ast;
+mod printer;
 
-impl BinaryExpr {
-    fn new(left: Expr, operator: Token, right: Expr) -> Self {
-        Self {
-            left: Box::new(left),
-            operator,
-            right: Box::new(right),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-struct GroupingExpr {
-    expr: Box<Expr>,
-}
-
-impl GroupingExpr {
-    fn new(expr: Expr) -> Self {
-        Self {
-            expr: Box::new(expr)
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-enum Literal {
-    Str(String),
-    Num(f64),
-}
-
-impl Literal {
-    fn new(value: impl Into<Literal>) -> Self {
-        value.into()
-    }
-}
-
-impl From<String> for Literal {
-    fn from(value: String) -> Self {
-        Literal::Str(value)
-    }
-}
-
-impl From<f64> for Literal {
-    fn from(value: f64) -> Self {
-        Literal::Num(value)
-    }
-}
-
-#[derive(Debug, Clone)]
-struct UnaryExpr {
-    operator: Token,
-    right: Box<Expr>,
-}
-
-impl UnaryExpr {
-    fn new(operator: Token, right: Expr) -> Self {
-        Self {
-            operator,
-            right: Box::new(right),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-enum TokenType {
-    // Single-character tokens.
-    LeftParen,
-    RightParen,
-    LeftBrace,
-    RightBrace,
-    Comma,
-    Dot,
-    Minus,
-    Plus,
-    Semicolon,
-    Slash,
-    Star,
-
-    // One or two character tokens.
-    Bang,
-    BangEqual,
-    Equal,
-    EqualEqual,
-    Greater,
-    GreaterEqual,
-    Less,
-    LessEqual,
-
-    // Literals.
-    Identifier,
-    String,
-    Number,
-
-    // Keywords.
-    And,
-    Class,
-    Else,
-    False,
-    Fun,
-    For,
-    If,
-    Nil,
-    Or,
-    Print,
-    Return,
-    Super,
-    This,
-    True,
-    Var,
-    While,
-
-    Eof,
-}
-
-#[derive(Debug, Clone)]
-struct Token {
-    token_type: TokenType,
-    lexeme: String,
-    literal: Option<Literal>,
-    line: usize,
-}
-
-impl Token {
-    fn new(token_type: TokenType, lexeme: String, literal: Option<Literal>, line: usize) -> Self {
-        Self {
-            token_type,
-            lexeme,
-            literal,
-            line,
-        }
-    }
-}
-
-impl fmt::Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} {:?}", self.token_type, self.lexeme, self.literal)
-    }
-}
-
-impl fmt::Display for TokenType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
 
 struct ScannerError {
     had_error: Cell<bool>,
@@ -258,7 +103,7 @@ impl Scanner {
 
         match c {
             '(' => self.add_token(TokenType::LeftParen),
-            
+
             ')' => self.add_token(TokenType::RightParen),
 
             '{' => self.add_token(TokenType::LeftBrace),
@@ -382,7 +227,7 @@ impl Scanner {
         }
 
         let value: f64 = self.source[self.start..self.current].parse().unwrap();
-        self.add_token_with_literal(TokenType::Number, Some(Literal::Num(value)));
+        self.add_token_with_literal(TokenType::Number, Some(LiteralExpr::Num(value)));
     }
 
     fn is_digit(&self, c: char) -> bool {
@@ -407,7 +252,7 @@ impl Scanner {
 
         // Trim the surrounding quotes.
         let value = self.source[self.start + 1..self.current - 1].to_string();
-        self.add_token_with_literal(TokenType::String, Some(Literal::Str(value)));
+        self.add_token_with_literal(TokenType::String, Some(LiteralExpr::Str(value)));
     }
 
     fn peek(&self) -> char {
@@ -450,7 +295,7 @@ impl Scanner {
         self.add_token_with_literal(token_type, None);
     }
 
-    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
+    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<LiteralExpr>) {
         let text = &self.source[self.start..self.current];
         self.tokens.push(Token::new(token_type, text.to_string(), literal, self.line));
     }
@@ -497,17 +342,20 @@ fn run(source: String) {
     }
 }
 
-fn main() -> io::Result<()> {
-    let args: Vec<String> = env::args().collect();
 
-    if args.len() > 2 {
-        println!("Usage: lox [script]");
-        std::process::exit(64);
-    } else if args.len() == 2 {
-        run_file(&args[1])?;
-    } else {
-        run_prompt()?;
-    }
+fn main() -> io::Result<()> {
+    // let args: Vec<String> = env::args().collect();
+    //
+    // if args.len() > 2 {
+    //     println!("Usage: lox [script]");
+    //     std::process::exit(64);
+    // } else if args.len() == 2 {
+    //     run_file(&args[1])?;
+    // } else {
+    //     run_prompt()?;
+    // }
+
+
 
     Ok(())
 }
