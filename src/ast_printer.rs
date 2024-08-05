@@ -36,6 +36,7 @@ impl crate::ast::visitor::ExprVisitor<String> for AstPrinter {
         match expr {
             LiteralExpr::Str(s) => s.clone(),
             LiteralExpr::Num(n) => n.to_string(),
+            LiteralExpr::Bool(b) => b.to_string(),
             LiteralExpr::Nil => "nil".to_string(),
         }
     }

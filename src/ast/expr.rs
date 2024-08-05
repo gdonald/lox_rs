@@ -58,6 +58,7 @@ impl GroupingExpr {
 pub enum LiteralExpr {
     Str(String),
     Num(f64),
+    Bool(bool),
     Nil,
 }
 
@@ -77,6 +78,10 @@ impl From<f64> for LiteralExpr {
     fn from(value: f64) -> Self {
         LiteralExpr::Num(value)
     }
+}
+
+impl From<bool> for LiteralExpr {
+    fn from(value: bool) -> Self { LiteralExpr::Bool(value) }
 }
 
 #[derive(Debug, Clone)]

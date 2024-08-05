@@ -182,6 +182,7 @@ impl Scanner {
             }
         }
     }
+    
     fn is_alpha(&self, c: char) -> bool {
         (c >= 'a' && c <= 'z') ||
             (c >= 'A' && c <= 'Z') ||
