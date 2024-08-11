@@ -3,9 +3,11 @@ use std::io::Write;
 use std::{fs, io};
 use crate::ast::parser::Parser;
 use crate::ast_printer::AstPrinter;
+use crate::interpreter::Interpreter;
 
 pub mod ast;
 pub mod ast_printer;
+pub mod interpreter;
 
 pub fn run_file(path: &str) -> io::Result<()> {
     let contents = fs::read_to_string(path)?;
@@ -54,8 +56,7 @@ fn run(source: String) {
         Some(expr) => expr,
         None => { return; }
     };
-
-    // Print the expression using AstPrinter
+    
     let mut printer = AstPrinter;
     println!("{}", printer.print(&expression));
 }

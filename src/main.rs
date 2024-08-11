@@ -7,6 +7,8 @@ use lox_rs::{run_file, run_prompt};
 
 mod ast;
 mod ast_printer;
+mod interpreter;
+
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();

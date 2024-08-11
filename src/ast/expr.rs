@@ -1,5 +1,5 @@
 use crate::ast::token::Token;
-use crate::ast::visitor::ExprVisitor;
+use crate::ast::expr_visitor::ExprVisitor;
 
 #[derive(Debug, Clone)]
 pub enum Expr {

@@ -1,4 +1,5 @@
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
+use crate::ast::expr_visitor::ExprVisitor;
 
 pub struct AstPrinter;
 
@@ -23,7 +24,7 @@ impl AstPrinter {
     }
 }
 
-impl crate::ast::visitor::ExprVisitor<String> for AstPrinter {
+impl ExprVisitor<String> for AstPrinter {
     fn visit_binary_expr(&mut self, expr: &BinaryExpr) -> String {
         self.parenthesize(&expr.operator.lexeme, &[&expr.left, &expr.right])
     }
