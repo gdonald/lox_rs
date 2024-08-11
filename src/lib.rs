@@ -1,4 +1,4 @@
-use crate::ast::scanner::{Scanner, ScannerError};
+use crate::ast::scanner::{Scanner, ScanError};
 use std::io::Write;
 use std::{fs, io};
 
@@ -32,7 +32,7 @@ pub fn run_prompt() -> io::Result<()> {
 }
 
 fn run(source: String) {
-    let error = ScannerError::new();
+    let error = ScanError::new();
     let mut scanner = Scanner::new(source, error);
     let tokens = scanner.scan_tokens();
 
@@ -41,7 +41,7 @@ fn run(source: String) {
         println!("{:?}", token);
     }
 
-    if scanner.error.had_error() {
+    if scanner.error.detected() {
         println!("There were errors during scanning.");
     }
 }

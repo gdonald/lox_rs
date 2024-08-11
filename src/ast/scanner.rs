@@ -5,14 +5,14 @@ use lazy_static::lazy_static;
 use crate::ast::expr::LiteralExpr;
 use crate::ast::token::{Token, TokenType};
 
-pub struct ScannerError {
-    had_error: Cell<bool>,
+pub struct ScanError {
+    detected: Cell<bool>,
 }
 
-impl ScannerError {
+impl ScanError {
     pub fn new() -> Self {
         Self {
-            had_error: Cell::new(false),
+            detected: Cell::new(false),
         }
     }
 
@@ -22,11 +22,11 @@ impl ScannerError {
 
     fn report(&self, line: usize, where_: &str, message: &str) {
         eprintln!("[line {}] Error{}: {}", line, where_, message);
-        self.had_error.set(true);
+        self.detected.set(true);
     }
 
-    pub fn had_error(&self) -> bool {
-        self.had_error.get()
+    pub fn detected(&self) -> bool {
+        self.detected.get()
     }
 }
 
@@ -60,11 +60,11 @@ pub struct Scanner {
     start: usize,
     current: usize,
     line: usize,
-    pub error: ScannerError,
+    pub error: ScanError,
 }
 
 impl Scanner {
-    pub fn new(source: String, error: ScannerError) -> Self {
+    pub fn new(source: String, error: ScanError) -> Self {
         Self {
             keywords: &KEYWORDS,
             source,
@@ -184,9 +184,7 @@ impl Scanner {
     }
     
     fn is_alpha(&self, c: char) -> bool {
-        (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z') ||
-            c == '_'
+        matches!(c, 'a'..='z' | 'A'..='Z' | '_')
     }
 
     fn is_alpha_numeric(&self, c: char) -> bool {
