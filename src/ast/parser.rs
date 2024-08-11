@@ -1,9 +1,21 @@
+use std::cell::Cell;
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::token::{Token, TokenType};
+#[derive(Debug)]
+struct ParseError;
+
+impl std::fmt::Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "ParseError")
+    }
+}
+
+impl std::error::Error for ParseError {}
 
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
+    error: Cell<bool>,
 }
 
 impl Parser {
@@ -11,6 +23,43 @@ impl Parser {
         Parser {
             tokens,
             current: 0,
+            error: Cell::new(false),
+        }
+    }
+
+    pub fn parse(&mut self) -> Option<Expr> {
+        let expr = self.expression();
+
+        if self.error.get() {
+            None
+        } else {
+            Some(expr)
+        }
+    }
+
+    pub fn synchronize(&mut self) {
+        self.advance();
+
+        while !self.is_at_end() {
+            if self.previous().token_type == TokenType::Semicolon {
+                return;
+            }
+
+            match self.peek().token_type {
+                TokenType::Class |
+                TokenType::Fun |
+                TokenType::Var |
+                TokenType::For |
+                TokenType::If |
+                TokenType::While |
+                TokenType::Print |
+                TokenType::Return => {
+                    return;
+                }
+                _ => {}
+            }
+
+            self.advance();
         }
     }
 

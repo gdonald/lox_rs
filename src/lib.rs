@@ -1,6 +1,8 @@
 use crate::ast::scanner::{Scanner, ScanError};
 use std::io::Write;
 use std::{fs, io};
+use crate::ast::parser::Parser;
+use crate::ast_printer::AstPrinter;
 
 pub mod ast;
 pub mod ast_printer;
@@ -36,12 +38,24 @@ fn run(source: String) {
     let mut scanner = Scanner::new(source, error);
     let tokens = scanner.scan_tokens();
 
-    // For now, just print the tokens.
-    for token in tokens {
-        println!("{:?}", token);
-    }
+    // // For now, just print the tokens.
+    // for token in tokens {
+    //     println!("{:?}", token);
+    // }
+    //
+    // if scanner.error.detected() {
+    //     println!("There were errors during scanning.");
+    // }
 
-    if scanner.error.detected() {
-        println!("There were errors during scanning.");
-    }
+    let mut parser = Parser::new(tokens);
+
+    // Parse the expression
+    let expression = match parser.parse() {
+        Some(expr) => expr,
+        None => { return; }
+    };
+
+    // Print the expression using AstPrinter
+    let mut printer = AstPrinter;
+    println!("{}", printer.print(&expression));
 }
