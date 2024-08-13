@@ -1,5 +1,6 @@
-use std::any::Any;
+use std::any::{Any, TypeId};
 
+#[derive(Debug)]
 pub(crate) struct Object {
     value: Box<dyn Any>,
 }
@@ -19,7 +20,19 @@ impl Object {
         &*self.value
     }
 
+    // pub fn downcast_ref<T: 'static>(&self) -> Option<&T> {
+    //     self.value.downcast_ref::<T>()
+    // }
     pub fn downcast_ref<T: 'static>(&self) -> Option<&T> {
-        self.value.downcast_ref::<T>()
+        if self.value.type_id() == TypeId::of::<T>() {
+            self.value.downcast_ref::<T>()
+        } else {
+            panic!(
+                "Attempted to downcast to the wrong type {:?}, {:?}.",
+                self.value.type_id(),
+                TypeId::of::<T>()
+            );
+            None
+        }
     }
 }

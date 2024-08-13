@@ -1,9 +1,9 @@
-use crate::ast::scanner::{Scanner, ScanError};
-use std::io::Write;
-use std::{fs, io};
 use crate::ast::parser::Parser;
+use crate::ast::scanner::{ScanError, Scanner};
 use crate::ast_printer::AstPrinter;
 use crate::interpreter::Interpreter;
+use std::io::Write;
+use std::{fs, io};
 
 pub mod ast;
 pub mod ast_printer;
@@ -51,12 +51,16 @@ fn run(source: String) {
 
     let mut parser = Parser::new(tokens);
 
-    // Parse the expression
     let expression = match parser.parse() {
         Some(expr) => expr,
-        None => { return; }
+        None => {
+            return;
+        }
     };
-    
-    let mut printer = AstPrinter;
-    println!("{}", printer.print(&expression));
+
+    // let mut printer = AstPrinter;
+    // println!("{}", printer.print(&expression));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expression);
 }

@@ -1,11 +1,29 @@
+use core::panic;
+
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::expr_visitor::ExprVisitor;
 use crate::ast::object::Object;
-use crate::ast::token::TokenType;
+use crate::ast::token::{Token, TokenType};
+
+pub struct RuntimeError {
+    pub token: Token,
+    pub message: String,
+}
+
+impl RuntimeError {
+    pub fn new(token: Token, message: String) -> Self {
+        Self { token, message }
+    }
+}
 
 pub struct Interpreter;
 
 impl Interpreter {
+    pub fn interpret(&mut self, expression: &Expr) {
+        let value = self.evaluate(expression.clone());
+        println!("{:?}", value);
+    }
+
     fn evaluate(&mut self, expr: Expr) -> Object {
         expr.accept(self)
     }
@@ -45,6 +63,14 @@ impl ExprVisitor<Object> for Interpreter {
     }
 
     fn visit_binary_expr(&mut self, expr: &BinaryExpr) -> Object {
+        panic!(
+            "operands: {:?}, {:?}",
+            self.evaluate(Expr::from(*expr.left.clone()))
+                .downcast_ref::<f64>(),
+            self.evaluate(Expr::from(*expr.right.clone()))
+                .downcast_ref::<f64>()
+        );
+
         let left = self.evaluate(Expr::from(*expr.left.clone()));
         let right = self.evaluate(Expr::from(*expr.right.clone()));
 
@@ -63,7 +89,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num > right_num)
                 } else {
-                    panic!("Operands must be numbers for the GREATER operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::GreaterEqual => {
@@ -72,7 +101,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num >= right_num)
                 } else {
-                    panic!("Operands must be numbers for the GREATER EQUAL operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::Less => {
@@ -81,7 +113,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num < right_num)
                 } else {
-                    panic!("Operands must be numbers for the LESS operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::LessEqual => {
@@ -90,7 +125,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num <= right_num)
                 } else {
-                    panic!("Operands must be numbers for the LESS EQUAL operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::Plus => {
@@ -104,7 +142,12 @@ impl ExprVisitor<Object> for Interpreter {
                 ) {
                     Object::new(format!("{}{}", left_str, right_str))
                 } else {
-                    panic!("Operands must be matching types for the PLUS operation");
+                    panic!(
+                        "Operands {:?}, {:?} must be matching types for the {:?} operation",
+                        left.downcast_ref::<String>(),
+                        right.downcast_ref::<String>(),
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::Minus => {
@@ -113,7 +156,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num - right_num)
                 } else {
-                    panic!("Operands must be numbers for the MINUS operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::Slash => {
@@ -122,7 +168,10 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num / right_num)
                 } else {
-                    panic!("Operands must be numbers for the SLASH operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             TokenType::Star => {
@@ -131,11 +180,14 @@ impl ExprVisitor<Object> for Interpreter {
                 {
                     Object::new(left_num * right_num)
                 } else {
-                    panic!("Operands must be numbers for the STAR operation");
+                    panic!(
+                        "Operands must be numbers for the {:?} operation",
+                        expr.operator.token_type
+                    );
                 }
             }
             _ => {
-                panic!("Unknown operator"); // Handle other operators or errors
+                panic!("Unknown operator {:?}", expr.operator.token_type);
             }
         }
     }
@@ -153,12 +205,12 @@ impl ExprVisitor<Object> for Interpreter {
                 if let Some(num) = value.downcast_ref::<f64>() {
                     Object::new(-num)
                 } else {
-                    panic!("Operand must be a number");
+                    panic!("Unary operand {:?} must be a number", value);
                 }
             }
             TokenType::Bang => Object::new(!self.is_truthy(&value)),
             _ => {
-                panic!("Unknown token type");
+                panic!("Unknown token type {:?}", expr.operator.token_type);
             }
         }
     }
