@@ -1,5 +1,5 @@
-use crate::ast::token::Token;
 use crate::ast::expr_visitor::ExprVisitor;
+use crate::ast::token::Token;
 
 #[derive(Debug, Clone)]
 pub enum Expr {
@@ -49,7 +49,7 @@ pub struct GroupingExpr {
 impl GroupingExpr {
     fn new(expr: Expr) -> Self {
         Self {
-            expr: Box::new(expr)
+            expr: Box::new(expr),
         }
     }
 }
@@ -66,6 +66,16 @@ impl LiteralExpr {
     fn new(value: impl Into<LiteralExpr>) -> Self {
         value.into()
     }
+
+    pub fn extract_num(expr: &Expr) -> f64 {
+        if let Expr::Literal(literal) = expr {
+            if let LiteralExpr::Num(value) = **literal {
+                return value;
+            }
+        }
+
+        panic!("Failed to extract number from expression {:?}.", expr);
+    }
 }
 
 impl From<String> for LiteralExpr {
@@ -81,7 +91,9 @@ impl From<f64> for LiteralExpr {
 }
 
 impl From<bool> for LiteralExpr {
-    fn from(value: bool) -> Self { LiteralExpr::Bool(value) }
+    fn from(value: bool) -> Self {
+        LiteralExpr::Bool(value)
+    }
 }
 
 #[derive(Debug, Clone)]

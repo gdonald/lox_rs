@@ -63,16 +63,18 @@ impl ExprVisitor<Object> for Interpreter {
     }
 
     fn visit_binary_expr(&mut self, expr: &BinaryExpr) -> Object {
-        panic!(
-            "operands: {:?}, {:?}",
-            self.evaluate(Expr::from(*expr.left.clone()))
-                .downcast_ref::<f64>(),
-            self.evaluate(Expr::from(*expr.right.clone()))
-                .downcast_ref::<f64>()
-        );
+        // if let Expr::Literal(literal) = *expr.left.clone() {
+        //     if let LiteralExpr::Num(value) = *literal {
+        //         panic!("left operand: {}", value);
+        //     }
+        // }
 
-        let left = self.evaluate(Expr::from(*expr.left.clone()));
-        let right = self.evaluate(Expr::from(*expr.right.clone()));
+        let left = LiteralExpr::extract_num(&expr.left);
+        let right = LiteralExpr::extract_num(&expr.right);
+        // panic!("left operand: {:?}", left);
+
+        // let left = self.evaluate(Expr::from(*expr.left.clone()));
+        // let right = self.evaluate(Expr::from(*expr.right.clone()));
 
         match expr.operator.token_type {
             TokenType::EqualEqual => {

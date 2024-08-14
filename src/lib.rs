@@ -1,6 +1,6 @@
 use crate::ast::parser::Parser;
 use crate::ast::scanner::{ScanError, Scanner};
-use crate::ast_printer::AstPrinter;
+// use crate::ast_printer::AstPrinter;
 use crate::interpreter::Interpreter;
 use std::io::Write;
 use std::{fs, io};
