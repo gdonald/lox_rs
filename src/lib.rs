@@ -36,19 +36,8 @@ pub fn run_prompt() -> io::Result<()> {
 }
 
 fn run(source: String) {
-    let error = ScanError::new();
-    let mut scanner = Scanner::new(source, error);
+    let mut scanner = Scanner::new(source, ScanError::new());
     let tokens = scanner.scan_tokens();
-
-    // // For now, just print the tokens.
-    // for token in tokens {
-    //     println!("{:?}", token);
-    // }
-    //
-    // if scanner.error.detected() {
-    //     println!("There were errors during scanning.");
-    // }
-
     let mut parser = Parser::new(tokens);
 
     let expression = match parser.parse() {
@@ -57,9 +46,6 @@ fn run(source: String) {
             return;
         }
     };
-
-    // let mut printer = AstPrinter;
-    // println!("{}", printer.print(&expression));
 
     let mut interpreter = Interpreter;
     interpreter.interpret(&expression);

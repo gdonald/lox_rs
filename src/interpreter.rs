@@ -20,8 +20,8 @@ pub struct Interpreter;
 
 impl Interpreter {
     pub fn interpret(&mut self, expression: &Expr) {
-        let value = self.evaluate(expression.clone());
-        println!("{:?}", value);
+        let obj = self.evaluate(expression.clone());
+        println!("{}", obj.as_string());
     }
 
     fn evaluate(&mut self, expr: Expr) -> Object {
@@ -33,7 +33,7 @@ impl Interpreter {
             return false;
         }
 
-        if let Some(boolean) = object.downcast_ref::<bool>() {
+        if let Some(boolean) = object.get_value::<bool>() {
             return *boolean;
         }
 
@@ -42,15 +42,15 @@ impl Interpreter {
 
     fn is_equal(&self, a: &Object, b: &Object) -> bool {
         if a.is::<f64>() && b.is::<f64>() {
-            return a.downcast_ref::<f64>() == b.downcast_ref::<f64>();
+            return a.get_value::<f64>() == b.get_value::<f64>();
         }
 
         if a.is::<String>() && b.is::<String>() {
-            return a.downcast_ref::<String>() == b.downcast_ref::<String>();
+            return a.get_value::<String>() == b.get_value::<String>();
         }
 
         if a.is::<bool>() && b.is::<bool>() {
-            return a.downcast_ref::<bool>() == b.downcast_ref::<bool>();
+            return a.get_value::<bool>() == b.get_value::<bool>();
         }
 
         false
@@ -59,22 +59,19 @@ impl Interpreter {
 
 impl ExprVisitor<Object> for Interpreter {
     fn visit_literal_expr(&mut self, expr: &LiteralExpr) -> Object {
-        Object::new(expr.clone())
+        match expr {
+            LiteralExpr::Str(value) => Object::new(value.clone()),
+            LiteralExpr::Num(value) => Object::new(*value),
+            LiteralExpr::Bool(value) => Object::new(*value),
+            _ => {
+                panic!("Unhandled literal expression type");
+            }
+        }
     }
 
     fn visit_binary_expr(&mut self, expr: &BinaryExpr) -> Object {
-        // if let Expr::Literal(literal) = *expr.left.clone() {
-        //     if let LiteralExpr::Num(value) = *literal {
-        //         panic!("left operand: {}", value);
-        //     }
-        // }
-
-        let left = LiteralExpr::extract_num(&expr.left);
-        let right = LiteralExpr::extract_num(&expr.right);
-        // panic!("left operand: {:?}", left);
-
-        // let left = self.evaluate(Expr::from(*expr.left.clone()));
-        // let right = self.evaluate(Expr::from(*expr.right.clone()));
+        let left = self.evaluate(Expr::from(*(expr.left).clone()));
+        let right = self.evaluate(Expr::from(*(expr.right).clone()));
 
         match expr.operator.token_type {
             TokenType::EqualEqual => {
@@ -87,7 +84,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::Greater => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num > right_num)
                 } else {
@@ -99,7 +96,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::GreaterEqual => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num >= right_num)
                 } else {
@@ -111,7 +108,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::Less => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num < right_num)
                 } else {
@@ -123,7 +120,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::LessEqual => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num <= right_num)
                 } else {
@@ -135,26 +132,26 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::Plus => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num + right_num)
                 } else if let (Some(left_str), Some(right_str)) = (
-                    left.downcast_ref::<String>(),
-                    right.downcast_ref::<String>(),
+                    left.get_value::<String>(),
+                    right.get_value::<String>(),
                 ) {
                     Object::new(format!("{}{}", left_str, right_str))
                 } else {
                     panic!(
                         "Operands {:?}, {:?} must be matching types for the {:?} operation",
-                        left.downcast_ref::<String>(),
-                        right.downcast_ref::<String>(),
+                        left.get_value::<String>(),
+                        right.get_value::<String>(),
                         expr.operator.token_type
                     );
                 }
             }
             TokenType::Minus => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num - right_num)
                 } else {
@@ -166,7 +163,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::Slash => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num / right_num)
                 } else {
@@ -178,7 +175,7 @@ impl ExprVisitor<Object> for Interpreter {
             }
             TokenType::Star => {
                 if let (Some(left_num), Some(right_num)) =
-                    (left.downcast_ref::<f64>(), right.downcast_ref::<f64>())
+                    (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num * right_num)
                 } else {
@@ -204,7 +201,7 @@ impl ExprVisitor<Object> for Interpreter {
 
         match expr.operator.token_type {
             TokenType::Minus => {
-                if let Some(num) = value.downcast_ref::<f64>() {
+                if let Some(num) = value.get_value::<f64>() {
                     Object::new(-num)
                 } else {
                     panic!("Unary operand {:?} must be a number", value);
