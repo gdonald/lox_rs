@@ -48,5 +48,6 @@ fn run(source: String) {
     };
 
     let mut interpreter = Interpreter;
-    interpreter.interpret(&expression);
+    let obj = interpreter.interpret(&expression);
+    println!("{}", obj.to_string());
 }

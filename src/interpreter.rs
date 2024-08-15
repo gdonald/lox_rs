@@ -19,9 +19,8 @@ impl RuntimeError {
 pub struct Interpreter;
 
 impl Interpreter {
-    pub fn interpret(&mut self, expression: &Expr) {
-        let obj = self.evaluate(expression.clone());
-        println!("{}", obj.as_string());
+    pub fn interpret(&mut self, expression: &Expr) -> Object {
+        self.evaluate(expression.clone())
     }
 
     fn evaluate(&mut self, expr: Expr) -> Object {

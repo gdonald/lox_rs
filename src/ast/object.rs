@@ -1,15 +1,13 @@
 use std::any::{type_name, type_name_of_val, Any, TypeId};
 
-use super::expr::{Expr, LiteralExpr};
-
 #[derive(Debug)]
-pub(crate) struct Object {
-    type_name: &'static str,
-    value: Box<dyn Any>,
+pub struct Object {
+    pub type_name: &'static str,
+    pub value: Box<dyn Any>,
 }
 
 impl Object {
-    pub(crate) fn new<T: 'static>(value: T) -> Self {
+    pub fn new<T: 'static>(value: T) -> Self {
         Self {
             type_name: std::any::type_name::<T>(),
             value: Box::new(value),
@@ -28,8 +26,8 @@ impl Object {
             None
         }
     }
-    
-    pub fn as_string(&self) -> String {
+
+    pub fn to_string(&self) -> String {
         if self.is::<f64>() {
             self.get_value::<f64>().unwrap().to_string()
         } else if self.is::<String>() {
