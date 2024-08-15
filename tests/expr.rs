@@ -27,3 +27,18 @@ fn test_create_literal_expr_with_str() {
         panic!("Expected Expr::Literal");
     }
 }
+
+#[test]
+fn test_create_literal_expr_with_bool() {
+    let literal = Expr::Literal(Box::new(LiteralExpr::Bool(true)));
+    if let Expr::Literal(lit) = literal {
+        if let LiteralExpr::Bool(value) = *lit {
+            assert_eq!(value, true);
+        } else {
+            panic!("Expected LiteralExpr::Bool");
+        }
+    } else {
+        panic!("Expected Expr::Literal");
+    }
+}
+
