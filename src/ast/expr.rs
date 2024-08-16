@@ -10,16 +10,13 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub(crate) fn accept<R>(&self, visitor: &mut dyn ExprVisitor<R>) -> R {
+    pub fn accept<R>(&self, visitor: &mut dyn ExprVisitor<R>) -> R {
         match self {
             Expr::Binary(expr) => visitor.visit_binary_expr(expr),
             Expr::Grouping(expr) => visitor.visit_grouping_expr(expr),
             Expr::Literal(expr) => visitor.visit_literal_expr(expr),
             Expr::Unary(expr) => visitor.visit_unary_expr(expr),
-
-            _ => {
-                panic!("Unhandled expression type")
-            }
+            _ => { panic!("Unhandled expression type") }
         }
     }
 }
