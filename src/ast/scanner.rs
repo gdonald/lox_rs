@@ -1,6 +1,6 @@
+use lazy_static::lazy_static;
 use std::cell::Cell;
 use std::collections::HashMap;
-use lazy_static::lazy_static;
 
 use crate::ast::expr::LiteralExpr;
 use crate::ast::token::{Token, TokenType};
@@ -16,7 +16,7 @@ impl ScanError {
         }
     }
 
-    fn error(&self, line: usize, message: &str) {
+    pub fn error(&self, line: usize, message: &str) {
         self.report(line, "", message);
     }
 
@@ -31,7 +31,7 @@ impl ScanError {
 }
 
 lazy_static! {
-    static ref KEYWORDS: HashMap<String, TokenType> = {
+    pub static ref KEYWORDS: HashMap<String, TokenType> = {
         let mut m = HashMap::new();
         m.insert("and".to_string(), TokenType::And);
         m.insert("class".to_string(), TokenType::Class);
@@ -55,11 +55,11 @@ lazy_static! {
 
 pub struct Scanner {
     keywords: &'static HashMap<String, TokenType>,
-    source: String,
-    tokens: Vec<Token>,
-    start: usize,
-    current: usize,
-    line: usize,
+    pub source: String,
+    pub tokens: Vec<Token>,
+    pub start: usize,
+    pub current: usize,
+    pub line: usize,
     pub error: ScanError,
 }
 
@@ -82,15 +82,16 @@ impl Scanner {
             self.scan_token();
         }
 
-        self.tokens.push(Token::new(TokenType::Eof, "".to_string(), None, self.line));
+        self.tokens
+            .push(Token::new(TokenType::Eof, "".to_string(), None, self.line));
         self.tokens.clone()
     }
 
-    fn is_at_end(&self) -> bool {
+    pub fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
 
-    fn scan_token(&mut self) {
+    pub fn scan_token(&mut self) {
         let c = self.advance();
 
         match c {
@@ -182,7 +183,7 @@ impl Scanner {
             }
         }
     }
-    
+
     fn is_alpha(&self, c: char) -> bool {
         matches!(c, 'a'..='z' | 'A'..='Z' | '_')
     }
@@ -197,7 +198,11 @@ impl Scanner {
         }
 
         let text = &self.source[self.start..self.current];
-        let token_type = self.keywords.get(text).cloned().unwrap_or(TokenType::Identifier);
+        let token_type = self
+            .keywords
+            .get(text)
+            .cloned()
+            .unwrap_or(TokenType::Identifier);
 
         self.add_token(token_type);
     }
@@ -288,6 +293,7 @@ impl Scanner {
 
     fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<LiteralExpr>) {
         let text = &self.source[self.start..self.current];
-        self.tokens.push(Token::new(token_type, text.to_string(), literal, self.line));
+        self.tokens
+            .push(Token::new(token_type, text.to_string(), literal, self.line));
     }
 }
