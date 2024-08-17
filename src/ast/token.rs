@@ -53,7 +53,7 @@ pub enum TokenType {
     Eof,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
@@ -62,7 +62,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub(crate) fn new(token_type: TokenType, lexeme: String, literal: Option<LiteralExpr>, line: usize) -> Self {
+    pub fn new(token_type: TokenType, lexeme: String, literal: Option<LiteralExpr>, line: usize) -> Self {
         Self {
             token_type,
             lexeme,

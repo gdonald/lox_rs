@@ -52,7 +52,7 @@ impl GroupingExpr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum LiteralExpr {
     Str(String),
     Num(f64),
