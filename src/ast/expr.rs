@@ -7,6 +7,7 @@ pub enum Expr {
     Grouping(Box<GroupingExpr>),
     Literal(Box<LiteralExpr>),
     Unary(Box<UnaryExpr>),
+    Unhandled,
 }
 
 impl Expr {
@@ -29,7 +30,7 @@ pub struct BinaryExpr {
 }
 
 impl BinaryExpr {
-    fn new(left: Expr, operator: Token, right: Expr) -> Self {
+    pub fn new(left: Expr, operator: Token, right: Expr) -> Self {
         Self {
             left: Box::new(left),
             operator,
@@ -44,7 +45,7 @@ pub struct GroupingExpr {
 }
 
 impl GroupingExpr {
-    fn new(expr: Expr) -> Self {
+    pub fn new(expr: Expr) -> Self {
         Self {
             expr: Box::new(expr),
         }
@@ -60,7 +61,7 @@ pub enum LiteralExpr {
 }
 
 impl LiteralExpr {
-    fn new(value: impl Into<LiteralExpr>) -> Self {
+    pub fn new(value: impl Into<LiteralExpr>) -> Self {
         value.into()
     }
 
@@ -100,7 +101,7 @@ pub struct UnaryExpr {
 }
 
 impl UnaryExpr {
-    fn new(operator: Token, right: Expr) -> Self {
+    pub fn new(operator: Token, right: Expr) -> Self {
         Self {
             operator,
             right: Box::new(right),
