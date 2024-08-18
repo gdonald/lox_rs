@@ -6,7 +6,6 @@ use std::io::Write;
 use std::{fs, io};
 
 pub mod ast;
-pub mod ast_printer;
 pub mod interpreter;
 
 pub fn run_file(path: &str) -> io::Result<()> {

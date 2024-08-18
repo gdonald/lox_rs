@@ -1,4 +1,3 @@
-use crate::ast::expr_visitor::ExprVisitor;
 use crate::ast::token::Token;
 
 #[derive(Debug, Clone)]
@@ -11,7 +10,7 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn accept<R>(&self, visitor: &mut dyn ExprVisitor<R>) -> R {
+    pub fn accept<R>(&self, visitor: &mut dyn Visitor<R>) -> R {
         match self {
             Expr::Binary(expr) => visitor.visit_binary_expr(expr),
             Expr::Grouping(expr) => visitor.visit_grouping_expr(expr),
@@ -107,4 +106,11 @@ impl UnaryExpr {
             right: Box::new(right),
         }
     }
+}
+
+pub trait Visitor<R> {
+    fn visit_binary_expr(&mut self, expr: &BinaryExpr) -> R;
+    fn visit_grouping_expr(&mut self, expr: &GroupingExpr) -> R;
+    fn visit_literal_expr(&mut self, expr: &LiteralExpr) -> R;
+    fn visit_unary_expr(&mut self, expr: &UnaryExpr) -> R;
 }

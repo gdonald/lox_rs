@@ -1,12 +1,11 @@
-use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
-use lox_rs::ast::expr_visitor::ExprVisitor;
+use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr, Visitor};
 use lox_rs::ast::token::{Token, TokenType};
 
 struct MockVisitor {
     pub log: Vec<String>,
 }
 
-impl ExprVisitor<String> for MockVisitor {
+impl Visitor<String> for MockVisitor {
     fn visit_binary_expr(&mut self, _expr: &BinaryExpr) -> String {
         self.log.push("Visited BinaryExpr".to_string());
         "BinaryExpr".to_string()

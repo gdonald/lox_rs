@@ -6,7 +6,6 @@ use std::io::{self};
 use lox_rs::{run_file, run_prompt};
 
 mod ast;
-mod ast_printer;
 mod interpreter;
 
 

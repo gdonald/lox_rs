@@ -1,7 +1,7 @@
 use core::panic;
 
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
-use crate::ast::expr_visitor::ExprVisitor;
+use crate::ast::expr::Visitor;
 use crate::ast::object::Object;
 use crate::ast::token::{Token, TokenType};
 
@@ -56,7 +56,7 @@ impl Interpreter {
     }
 }
 
-impl ExprVisitor<Object> for Interpreter {
+impl Visitor<Object> for Interpreter {
     fn visit_literal_expr(&mut self, expr: &LiteralExpr) -> Object {
         match expr {
             LiteralExpr::Str(value) => Object::new(value.clone()),

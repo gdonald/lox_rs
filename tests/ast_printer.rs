@@ -1,6 +1,6 @@
 use lox_rs::ast::expr::{Expr, BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr};
 use lox_rs::ast::token::{Token, TokenType};
-use lox_rs::ast_printer::AstPrinter;
+use lox_rs::ast::printer::Printer;
 
 #[test]
 fn test_ast_printer() {
@@ -25,7 +25,7 @@ fn test_ast_printer() {
         }))),
     }));
 
-    let mut printer = AstPrinter;
+    let mut printer = Printer;
     let result = printer.print(&expression);
 
     assert_eq!(result, "(* (- 123) (group 45.67))");

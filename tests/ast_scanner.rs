@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use lox_rs::ast::expr::LiteralExpr;
 use lox_rs::ast::scanner::KEYWORDS;
 use lox_rs::ast::scanner::{ScanError, Scanner};

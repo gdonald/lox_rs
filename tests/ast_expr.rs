@@ -1,5 +1,5 @@
 use lox_rs::ast::expr::{Expr, BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr};
-use lox_rs::ast::expr_visitor::ExprVisitor;
+use lox_rs::ast::expr::Visitor;
 use lox_rs::ast::token::{Token, TokenType};
 
 #[test]
@@ -46,7 +46,7 @@ fn test_create_literal_expr_with_bool() {
 
 struct MockVisitor;
 
-impl ExprVisitor<String> for MockVisitor {
+impl Visitor<String> for MockVisitor {
     fn visit_binary_expr(&mut self, _expr: &BinaryExpr) -> String {
         "Visited BinaryExpr".to_string()
     }
