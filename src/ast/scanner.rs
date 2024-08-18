@@ -54,7 +54,7 @@ lazy_static! {
 }
 
 pub struct Scanner {
-    keywords: &'static HashMap<String, TokenType>,
+    pub keywords: &'static HashMap<String, TokenType>,
     pub source: String,
     pub tokens: Vec<Token>,
     pub start: usize,
@@ -153,7 +153,6 @@ impl Scanner {
 
             '/' => {
                 if self.match_char('/') {
-                    // A comment goes until the end of the line.
                     while self.peek() != '\n' && !self.is_at_end() {
                         self.advance();
                     }
@@ -184,15 +183,15 @@ impl Scanner {
         }
     }
 
-    fn is_alpha(&self, c: char) -> bool {
+    pub fn is_alpha(&self, c: char) -> bool {
         matches!(c, 'a'..='z' | 'A'..='Z' | '_')
     }
 
-    fn is_alpha_numeric(&self, c: char) -> bool {
-        c.is_alphanumeric()
+    pub fn is_alpha_numeric(&self, c: char) -> bool {
+        c.is_alphanumeric() || c == '_'
     }
 
-    fn identifier(&mut self) {
+    pub fn identifier(&mut self) {
         while self.is_alpha_numeric(self.peek()) {
             self.advance();
         }
@@ -207,7 +206,7 @@ impl Scanner {
         self.add_token(token_type);
     }
 
-    fn number(&mut self) {
+    pub fn number(&mut self) {
         while self.peek().is_digit(10) {
             self.advance();
         }
@@ -226,11 +225,15 @@ impl Scanner {
         self.add_token_with_literal(TokenType::Number, Some(LiteralExpr::Num(value)));
     }
 
-    fn is_digit(&self, c: char) -> bool {
+    pub fn is_digit(&self, c: char) -> bool {
         c.is_digit(10)
     }
 
-    fn string(&mut self) {
+    pub fn string(&mut self) {
+        if !self.is_at_end() {
+            self.advance();
+        }
+
         while self.peek() != '"' && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
@@ -243,15 +246,13 @@ impl Scanner {
             return;
         }
 
-        // The closing ".
         self.advance();
 
-        // Trim the surrounding quotes.
         let value = self.source[self.start + 1..self.current - 1].to_string();
         self.add_token_with_literal(TokenType::String, Some(LiteralExpr::Str(value)));
     }
 
-    fn peek(&self) -> char {
+    pub fn peek(&self) -> char {
         if self.is_at_end() {
             '\0'
         } else {
@@ -259,7 +260,7 @@ impl Scanner {
         }
     }
 
-    fn peek_next(&self) -> char {
+    pub fn peek_next(&self) -> char {
         if self.current + 1 >= self.source.len() {
             '\0'
         } else {
@@ -267,7 +268,7 @@ impl Scanner {
         }
     }
 
-    fn match_char(&mut self, expected: char) -> bool {
+    pub fn match_char(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -280,18 +281,18 @@ impl Scanner {
         true
     }
 
-    fn advance(&mut self) -> char {
+    pub fn advance(&mut self) -> char {
         let current_char = self.source[self.current..].chars().next().unwrap();
         self.current += current_char.len_utf8();
 
         current_char
     }
 
-    fn add_token(&mut self, token_type: TokenType) {
+    pub fn add_token(&mut self, token_type: TokenType) {
         self.add_token_with_literal(token_type, None);
     }
 
-    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<LiteralExpr>) {
+    pub fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<LiteralExpr>) {
         let text = &self.source[self.start..self.current];
         self.tokens
             .push(Token::new(token_type, text.to_string(), literal, self.line));
