@@ -1,6 +1,6 @@
 use crate::ast::token::Token;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Binary(Box<BinaryExpr>),
     Grouping(Box<GroupingExpr>),
@@ -21,7 +21,7 @@ impl Expr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BinaryExpr {
     pub left: Box<Expr>,
     pub operator: Token,
@@ -38,7 +38,7 @@ impl BinaryExpr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GroupingExpr {
     pub expr: Box<Expr>,
 }
@@ -93,7 +93,7 @@ impl From<bool> for LiteralExpr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpr {
     pub operator: Token,
     pub right: Box<Expr>,

@@ -2,7 +2,7 @@ use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::token::{Token, TokenType};
 use std::cell::Cell;
 #[derive(Debug)]
-struct ParseError;
+pub struct ParseError;
 
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -13,9 +13,9 @@ impl std::fmt::Display for ParseError {
 impl std::error::Error for ParseError {}
 
 pub struct Parser {
-    tokens: Vec<Token>,
-    current: usize,
-    error: Cell<bool>,
+    pub tokens: Vec<Token>,
+    pub current: usize,
+    pub error: Cell<bool>,
 }
 
 impl Parser {
@@ -84,26 +84,26 @@ impl Parser {
         expr
     }
 
-    fn peek(&self) -> &Token {
+    pub fn peek(&self) -> &Token {
         &self.tokens[self.current]
     }
 
-    fn is_at_end(&self) -> bool {
+    pub fn is_at_end(&self) -> bool {
         self.peek().token_type == TokenType::Eof
     }
 
-    fn check(&self, token_type: TokenType) -> bool {
+    pub fn check(&self, token_type: TokenType) -> bool {
         if self.is_at_end() {
             return false;
         }
         self.peek().token_type == token_type
     }
 
-    fn previous(&self) -> &Token {
+    pub fn previous(&self) -> &Token {
         &self.tokens[self.current - 1]
     }
 
-    fn advance(&mut self) -> &Token {
+    pub fn advance(&mut self) -> &Token {
         if !self.is_at_end() {
             self.current += 1;
         }
@@ -120,7 +120,8 @@ impl Parser {
         false
     }
 
-    fn error(&self, token: &Token, message: &str) -> String {
+    pub fn error(&self, token: &Token, message: &str) -> String {
+        self.error.set(true);
         format!("Error at {}: {}", token.lexeme, message)
     }
 
