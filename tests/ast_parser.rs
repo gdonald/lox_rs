@@ -379,3 +379,55 @@ fn test_check_returns_false_at_end_of_input() {
     // Since we're at the end, check should return false regardless of the token type
     assert!(!parser.check(TokenType::Number));
 }
+
+#[test]
+fn test_previous_after_one_advance() {
+    let tokens = vec![
+        Token::new(TokenType::Number, "42".to_string(), Some(LiteralExpr::Num(42.0)), 1),
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+
+    let mut parser = Parser::new(tokens);
+    parser.advance(); // Move to the second token
+
+    let previous_token = parser.previous();
+
+    assert_eq!(
+        previous_token,
+        &Token::new(TokenType::Number, "42".to_string(), Some(LiteralExpr::Num(42.0)), 1)
+    );
+}
+
+#[test]
+fn test_previous_after_multiple_advances() {
+    let tokens = vec![
+        Token::new(TokenType::Number, "42".to_string(), Some(LiteralExpr::Num(42.0)), 1),
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+
+    let mut parser = Parser::new(tokens);
+    parser.advance(); // Move to the second token
+    parser.advance(); // Move to the third token
+
+    let previous_token = parser.previous();
+
+    assert_eq!(
+        previous_token,
+        &Token::new(TokenType::Plus, "+".to_string(), None, 1)
+    );
+}
+
+#[test]
+#[should_panic(expected = "attempt to subtract with overflow")]
+fn test_previous_at_start_panics() {
+    let tokens = vec![
+        Token::new(TokenType::Number, "42".to_string(), Some(LiteralExpr::Num(42.0)), 1),
+    ];
+
+    let parser = Parser::new(tokens);
+
+    // Calling previous without advancing should panic due to the current index being 0.
+    let _previous_token = parser.previous();
+}
