@@ -1232,3 +1232,124 @@ fn test_term_multiple_operations() {
         }))
     );
 }
+
+#[test]
+fn test_comparison_single_term() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.comparison();
+    assert_eq!(result, Expr::Literal(Box::new(LiteralExpr::Num(42.0))));
+}
+
+#[test]
+fn test_comparison_greater() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Greater, ">".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "8".to_string(),
+            Some(LiteralExpr::Num(8.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.comparison();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+            operator: Token::new(TokenType::Greater, ">".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(8.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_comparison_less_equal() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::LessEqual, "<=".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "50".to_string(),
+            Some(LiteralExpr::Num(50.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.comparison();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+            operator: Token::new(TokenType::LessEqual, "<=".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(50.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_comparison_multiple_operations() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Greater, ">".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "8".to_string(),
+            Some(LiteralExpr::Num(8.0)),
+            1,
+        ),
+        Token::new(TokenType::LessEqual, "<=".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "50".to_string(),
+            Some(LiteralExpr::Num(50.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.comparison();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Binary(Box::new(BinaryExpr {
+                left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+                operator: Token::new(TokenType::Greater, ">".to_string(), None, 1),
+                right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(8.0)))),
+            }))),
+            operator: Token::new(TokenType::LessEqual, "<=".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(50.0)))),
+        }))
+    );
+}
