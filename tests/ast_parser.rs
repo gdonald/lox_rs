@@ -724,3 +724,61 @@ fn test_error_with_different_token() {
     assert_eq!(message, "Error at 42: Expected an identifier");
     assert!(parser.error.get(), "Error state should be set to true");
 }
+
+#[test]
+fn test_consume_successful() {
+    let tokens = vec![
+        Token::new(TokenType::Identifier, "foo".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.consume(TokenType::Identifier, "Expected an identifier");
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().token_type, TokenType::Identifier);
+    assert_eq!(parser.peek().token_type, TokenType::Eof);
+}
+
+#[test]
+fn test_consume_error() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.consume(TokenType::Identifier, "Expected an identifier");
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), "Error at 42: Expected an identifier");
+    assert!(parser.error.get(), "Error state should be set to true");
+}
+
+#[test]
+fn test_consume_at_end() {
+    let tokens = vec![Token::new(TokenType::Eof, "".to_string(), None, 1)];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.consume(TokenType::Identifier, "Expected an identifier");
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), "Error at : Expected an identifier");
+    assert!(parser.error.get(), "Error state should be set to true");
+}
+
+#[test]
+fn test_consume_advances_on_success() {
+    let tokens = vec![
+        Token::new(TokenType::Identifier, "foo".to_string(), None, 1),
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.consume(TokenType::Identifier, "Expected an identifier");
+    assert!(result.is_ok());
+    assert_eq!(parser.peek().token_type, TokenType::Plus);
+}
