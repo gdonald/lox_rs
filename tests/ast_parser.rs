@@ -1111,3 +1111,124 @@ fn test_factor_multiple_operations() {
         }))
     );
 }
+
+#[test]
+fn test_term_single_term() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.term();
+    assert_eq!(result, Expr::Literal(Box::new(LiteralExpr::Num(42.0))));
+}
+
+#[test]
+fn test_term_addition() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "8".to_string(),
+            Some(LiteralExpr::Num(8.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.term();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+            operator: Token::new(TokenType::Plus, "+".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(8.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_term_subtraction() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Minus, "-".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "8".to_string(),
+            Some(LiteralExpr::Num(8.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.term();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+            operator: Token::new(TokenType::Minus, "-".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(8.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_term_multiple_operations() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "8".to_string(),
+            Some(LiteralExpr::Num(8.0)),
+            1,
+        ),
+        Token::new(TokenType::Minus, "-".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "2".to_string(),
+            Some(LiteralExpr::Num(2.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.term();
+    assert_eq!(
+        result,
+        Expr::Binary(Box::new(BinaryExpr {
+            left: Box::new(Expr::Binary(Box::new(BinaryExpr {
+                left: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+                operator: Token::new(TokenType::Plus, "+".to_string(), None, 1),
+                right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(8.0)))),
+            }))),
+            operator: Token::new(TokenType::Minus, "-".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(2.0)))),
+        }))
+    );
+}
