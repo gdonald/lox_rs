@@ -1,4 +1,4 @@
-use lox_rs::ast::expr::{BinaryExpr, Expr, LiteralExpr};
+use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr};
 use lox_rs::ast::parser::{ParseError, Parser};
 use lox_rs::ast::token::{Token, TokenType};
 use std::error::Error;
@@ -781,4 +781,147 @@ fn test_consume_advances_on_success() {
     let result = parser.consume(TokenType::Identifier, "Expected an identifier");
     assert!(result.is_ok());
     assert_eq!(parser.peek().token_type, TokenType::Plus);
+}
+
+#[test]
+fn test_primary_false_literal() {
+    let tokens = vec![
+        Token::new(TokenType::False, "false".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap(),
+        Expr::Literal(Box::new(LiteralExpr::Bool(false)))
+    );
+}
+
+#[test]
+fn test_primary_true_literal() {
+    let tokens = vec![
+        Token::new(TokenType::True, "true".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap(),
+        Expr::Literal(Box::new(LiteralExpr::Bool(true)))
+    );
+}
+
+#[test]
+fn test_primary_nil_literal() {
+    let tokens = vec![
+        Token::new(TokenType::Nil, "nil".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), Expr::Literal(Box::new(LiteralExpr::Nil)));
+}
+
+#[test]
+fn test_primary_number_literal() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap(),
+        Expr::Literal(Box::new(LiteralExpr::Num(42.0)))
+    );
+}
+
+#[test]
+fn test_primary_string_literal() {
+    let tokens = vec![
+        Token::new(
+            TokenType::String,
+            "42".to_string(),
+            Some(LiteralExpr::Str("42".to_string())),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap(),
+        Expr::Literal(Box::new(LiteralExpr::Num(42.0)))
+    );
+}
+
+#[test]
+fn test_primary_grouping_expression() {
+    let tokens = vec![
+        Token::new(TokenType::LeftParen, "(".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::RightParen, ")".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap(),
+        Expr::Grouping(Box::new(GroupingExpr {
+            expr: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_primary_error_on_invalid_token() {
+    let tokens = vec![
+        Token::new(TokenType::Identifier, "foo".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), "Expect expression.".to_string());
+}
+
+#[test]
+fn test_primary_unexpected_literal_type_error() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "true".to_string(),
+            Some(LiteralExpr::Bool(true)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.primary();
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), "Unexpected literal type".to_string());
 }
