@@ -8,7 +8,6 @@ use lox_rs::{run_file, run_prompt};
 mod ast;
 mod interpreter;
 
-
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
@@ -18,7 +17,7 @@ fn main() -> io::Result<()> {
     } else if args.len() == 2 {
         run_file(&args[1])?;
     } else {
-        run_prompt()?;
+        run_prompt(io::stdin().lock(), io::stdout())?;
     }
 
     Ok(())

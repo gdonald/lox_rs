@@ -177,7 +177,11 @@ impl Parser {
             }));
         }
 
-        self.primary().unwrap()
+        if let Ok(expr) = self.primary() {
+            return expr;
+        } else {
+            panic!("Unary error");
+        }
     }
 
     pub fn factor(&mut self) -> Expr {
