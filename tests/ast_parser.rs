@@ -691,3 +691,36 @@ fn test_match_token_advances_parser() {
     assert!(parser.match_tokens(&[TokenType::Plus]));
     assert!(parser.match_tokens(&[TokenType::Minus]));
 }
+
+#[test]
+fn test_error_sets_error_state() {
+    let parser = Parser::new(vec![]);
+    let token = Token::new(TokenType::Identifier, "foo".to_string(), None, 1);
+    parser.error(&token, "Unexpected token");
+
+    assert!(parser.error.get(), "Error state should be set to true");
+}
+
+#[test]
+fn test_error_message_formatting() {
+    let parser = Parser::new(vec![]);
+    let token = Token::new(TokenType::Identifier, "foo".to_string(), None, 1);
+    let message = parser.error(&token, "Unexpected token");
+
+    assert_eq!(message, "Error at foo: Unexpected token");
+}
+
+#[test]
+fn test_error_with_different_token() {
+    let parser = Parser::new(vec![]);
+    let token = Token::new(
+        TokenType::Number,
+        "42".to_string(),
+        Some(LiteralExpr::Num(42.0)),
+        1,
+    );
+    let message = parser.error(&token, "Expected an identifier");
+
+    assert_eq!(message, "Error at 42: Expected an identifier");
+    assert!(parser.error.get(), "Error state should be set to true");
+}
