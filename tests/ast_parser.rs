@@ -1,4 +1,4 @@
-use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr};
+use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use lox_rs::ast::parser::{ParseError, Parser};
 use lox_rs::ast::token::{Token, TokenType};
 use std::error::Error;
@@ -924,4 +924,69 @@ fn test_primary_unexpected_literal_type_error() {
     let result = parser.primary();
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), "Unexpected literal type".to_string());
+}
+
+#[test]
+fn test_unary_bang_operator_with_true() {
+    let tokens = vec![
+        Token::new(TokenType::Bang, "!".to_string(), None, 1),
+        Token::new(
+            TokenType::True,
+            "true".to_string(),
+            Some(LiteralExpr::Bool(true)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.unary();
+    assert_eq!(
+        result,
+        Expr::Unary(Box::new(UnaryExpr {
+            operator: Token::new(TokenType::Bang, "!".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Bool(true)))),
+        }))
+    );
+}
+
+#[test]
+fn test_unary_minus_operator() {
+    let tokens = vec![
+        Token::new(TokenType::Minus, "-".to_string(), None, 1),
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.unary();
+    assert_eq!(
+        result,
+        Expr::Unary(Box::new(UnaryExpr {
+            operator: Token::new(TokenType::Minus, "-".to_string(), None, 1),
+            right: Box::new(Expr::Literal(Box::new(LiteralExpr::Num(42.0)))),
+        }))
+    );
+}
+
+#[test]
+fn test_no_unary_operator() {
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            "42".to_string(),
+            Some(LiteralExpr::Num(42.0)),
+            1,
+        ),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    let result = parser.unary();
+    assert_eq!(result, Expr::Literal(Box::new(LiteralExpr::Num(42.0))));
 }
