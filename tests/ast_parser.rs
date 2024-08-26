@@ -637,3 +637,57 @@ fn test_advance_does_not_move_past_end() {
         )
     );
 }
+
+#[test]
+fn test_match_single_token() {
+    let tokens = vec![
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    assert!(parser.match_tokens(&[TokenType::Plus]));
+}
+
+#[test]
+fn test_match_multiple_tokens() {
+    let tokens = vec![
+        Token::new(TokenType::Minus, "-".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    assert!(parser.match_tokens(&[TokenType::Plus, TokenType::Minus]));
+}
+
+#[test]
+fn test_no_match() {
+    let tokens = vec![
+        Token::new(TokenType::Star, "*".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    assert!(!parser.match_tokens(&[TokenType::Plus, TokenType::Minus]));
+}
+
+#[test]
+fn test_match_at_end() {
+    let tokens = vec![Token::new(TokenType::Eof, "".to_string(), None, 1)];
+    let mut parser = Parser::new(tokens);
+
+    assert!(!parser.match_tokens(&[TokenType::Eof]));
+}
+
+#[test]
+fn test_match_token_advances_parser() {
+    let tokens = vec![
+        Token::new(TokenType::Plus, "+".to_string(), None, 1),
+        Token::new(TokenType::Minus, "-".to_string(), None, 1),
+        Token::new(TokenType::Eof, "".to_string(), None, 1),
+    ];
+    let mut parser = Parser::new(tokens);
+
+    assert!(parser.match_tokens(&[TokenType::Plus]));
+    assert!(parser.match_tokens(&[TokenType::Minus]));
+}
