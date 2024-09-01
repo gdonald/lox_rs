@@ -1,7 +1,7 @@
 use core::panic;
 
-use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::expr::Visitor;
+use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::object::Object;
 use crate::ast::token::{Token, TokenType};
 
@@ -23,11 +23,11 @@ impl Interpreter {
         self.evaluate(expression.clone())
     }
 
-    fn evaluate(&mut self, expr: Expr) -> Object {
+    pub fn evaluate(&mut self, expr: Expr) -> Object {
         expr.accept(self)
     }
 
-    fn is_truthy(&self, object: &Object) -> bool {
+    pub fn is_truthy(&self, object: &Object) -> bool {
         if object.is::<Option<()>>() {
             return false;
         }
@@ -36,10 +36,18 @@ impl Interpreter {
             return *boolean;
         }
 
+        if let Some(string) = object.get_value::<String>() {
+            return !string.is_empty();
+        }
+
+        if let Some(number) = object.get_value::<f64>() {
+            return *number != 0.0;
+        }
+
         true
     }
 
-    fn is_equal(&self, a: &Object, b: &Object) -> bool {
+    pub fn is_equal(&self, a: &Object, b: &Object) -> bool {
         if a.is::<f64>() && b.is::<f64>() {
             return a.get_value::<f64>() == b.get_value::<f64>();
         }
@@ -134,10 +142,9 @@ impl Visitor<Object> for Interpreter {
                     (left.get_value::<f64>(), right.get_value::<f64>())
                 {
                     Object::new(left_num + right_num)
-                } else if let (Some(left_str), Some(right_str)) = (
-                    left.get_value::<String>(),
-                    right.get_value::<String>(),
-                ) {
+                } else if let (Some(left_str), Some(right_str)) =
+                    (left.get_value::<String>(), right.get_value::<String>())
+                {
                     Object::new(format!("{}{}", left_str, right_str))
                 } else {
                     panic!(

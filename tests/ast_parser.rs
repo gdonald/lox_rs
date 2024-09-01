@@ -589,7 +589,7 @@ fn test_advance_moves_to_next_token() {
         &Token::new(
             TokenType::Number,
             "42".to_string(),
-            Some(LiteralExpr::Num((42.0))),
+            Some(LiteralExpr::Num(42.0)),
             1
         )
     );

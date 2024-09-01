@@ -1,6 +1,7 @@
 use lox_rs::{
     ast::{
         expr::{BinaryExpr, Expr, LiteralExpr},
+        object::Object,
         token::{Token, TokenType},
     },
     interpreter::{Interpreter, RuntimeError},
@@ -77,4 +78,60 @@ fn test_interpreter_binary_addition() {
 
     assert_eq!(result.type_name, std::any::type_name::<f64>());
     assert_eq!(*result.value.downcast_ref::<f64>().unwrap(), 3.0);
+}
+
+#[test]
+fn test_is_truthy_none() {
+    let obj = Object::new(None::<()>);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), false);
+}
+
+#[test]
+fn test_is_truthy_true_bool() {
+    let obj = Object::new(true);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), true);
+}
+
+#[test]
+fn test_is_truthy_false_bool() {
+    let obj = Object::new(false);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), false);
+}
+
+#[test]
+fn test_is_truthy_string() {
+    let obj = Object::new("hello".to_string());
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), true);
+}
+
+#[test]
+fn test_is_truthy_empty_string() {
+    let obj = Object::new("".to_string());
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), false);
+}
+
+#[test]
+fn test_is_truthy_number() {
+    let obj = Object::new(42.0);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), true);
+}
+
+#[test]
+fn test_is_truthy_number_zero() {
+    let obj = Object::new(0.0);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), false);
+}
+
+#[test]
+fn test_is_truthy_catchall() {
+    let obj = Object::new(LiteralExpr::Nil);
+    let interpreter = Interpreter;
+    assert_eq!(interpreter.is_truthy(&obj), true);
 }

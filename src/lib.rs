@@ -1,7 +1,6 @@
 use crate::ast::parser::Parser;
 use crate::ast::scanner::{ScanError, Scanner};
 use crate::interpreter::Interpreter;
-use std::io::Write;
 use std::{fs, io};
 
 pub mod ast;
