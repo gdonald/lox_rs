@@ -201,8 +201,7 @@ impl Visitor<Object> for Interpreter {
     }
 
     fn visit_grouping_expr(&mut self, expr: &GroupingExpr) -> Object {
-        let value = self.evaluate(Expr::from(*expr.expr.clone()));
-        Object::new(value)
+        self.evaluate(*expr.expr.clone())
     }
 
     fn visit_unary_expr(&mut self, expr: &UnaryExpr) -> Object {
@@ -218,7 +217,7 @@ impl Visitor<Object> for Interpreter {
             }
             TokenType::Bang => Object::new(!self.is_truthy(&value)),
             _ => {
-                panic!("Unknown token type {:?}", expr.operator.token_type);
+                panic!("Unknown unary token type {:?}", expr.operator.token_type);
             }
         }
     }

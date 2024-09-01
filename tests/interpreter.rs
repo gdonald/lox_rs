@@ -1,6 +1,6 @@
 use lox_rs::{
     ast::{
-        expr::{BinaryExpr, Expr, LiteralExpr},
+        expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr},
         object::Object,
         token::{Token, TokenType},
     },
@@ -746,4 +746,87 @@ fn test_interpret_unhandled_literal_type() {
     let literal_expr = Expr::Literal(Box::new(LiteralExpr::Nil));
     let mut interpreter = Interpreter;
     interpreter.interpret(&literal_expr);
+}
+
+#[test]
+fn test_visit_grouping_expr_literal() {
+    let grouping_expr = GroupingExpr {
+        expr: Box::new(Expr::Literal(Box::new(LiteralExpr::new(42.0)))),
+    };
+    let expr = Expr::Grouping(Box::new(grouping_expr));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(*result.get_value::<f64>().unwrap(), 42.0);
+}
+
+#[test]
+fn test_visit_grouping_expr_nested() {
+    let grouping_expr = GroupingExpr {
+        expr: Box::new(Expr::Literal(Box::new(LiteralExpr::new(42.0)))),
+    };
+    let outer_grouping_expr = GroupingExpr {
+        expr: Box::new(Expr::Grouping(Box::new(grouping_expr))),
+    };
+    let expr = Expr::Grouping(Box::new(outer_grouping_expr));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(*result.get_value::<f64>().unwrap(), 42.0);
+}
+
+#[test]
+fn test_interpret_unary_minus_operator_with_number() {
+    let operator = Token::new(TokenType::Minus, "-".to_string(), None, 1);
+    let expr = Expr::Unary(Box::new(UnaryExpr {
+        operator: operator.clone(),
+        right: Box::new(Expr::Literal(Box::new(LiteralExpr::new(42.0)))),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+    assert_eq!(*result.get_value::<f64>().unwrap(), -42.0);
+}
+
+#[test]
+#[should_panic(
+    expected = "Unary operand Object { type_name: \"alloc::string::String\", value: Any { .. } } must be a number"
+)]
+fn test_interpret_unary_minus_operator_without_a_number() {
+    let operator = Token::new(TokenType::Minus, "-".to_string(), None, 1);
+    let expr = Expr::Unary(Box::new(UnaryExpr {
+        operator: operator.clone(),
+        right: Box::new(Expr::Literal(Box::new(LiteralExpr::new(
+            "not a number".to_string(),
+        )))),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+fn test_interpret_unary_bang_operator_with_a_bool() {
+    let operator = Token::new(TokenType::Bang, "!".to_string(), None, 1);
+    let expr = Expr::Unary(Box::new(UnaryExpr {
+        operator: operator.clone(),
+        right: Box::new(Expr::Literal(Box::new(LiteralExpr::new(true)))),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+    assert_eq!(*result.get_value::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Unknown unary token type LeftParen")]
+fn test_interpret_unary_unknown_operator() {
+    let operator = Token::new(TokenType::LeftParen, "(".to_string(), None, 1);
+    let expr = Expr::Unary(Box::new(UnaryExpr {
+        operator: operator.clone(),
+        right: Box::new(Expr::Literal(Box::new(LiteralExpr::new(42.0)))),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
 }
