@@ -1,14 +1,30 @@
 use crate::ast::parser::Parser;
 use crate::ast::scanner::{ScanError, Scanner};
 use crate::interpreter::Interpreter;
-use std::{fs, io};
+use std::{fs, io, process};
 
 pub mod ast;
 pub mod interpreter;
 
+pub fn run(
+    args: Vec<String>,
+    stdin: impl io::BufRead,
+    mut stdout: impl io::Write,
+) -> io::Result<()> {
+    if args.len() > 2 {
+        writeln!(stdout, "Usage: lox [script]")?;
+        process::exit(64);
+    } else if args.len() == 2 {
+        run_file(&args[1])?;
+    } else {
+        run_prompt(stdin, stdout)?;
+    }
+    Ok(())
+}
+
 pub fn run_file(path: &str) -> io::Result<()> {
     let contents = fs::read_to_string(path)?;
-    run(contents);
+    run_source(contents);
     Ok(())
 }
 
@@ -21,12 +37,12 @@ pub fn run_prompt<R: io::BufRead, W: io::Write>(mut input: R, mut output: W) -> 
         if line.trim().is_empty() {
             break;
         }
-        run(line);
+        run_source(line);
     }
     Ok(())
 }
 
-pub fn run(source: String) {
+pub fn run_source(source: String) {
     if source.is_empty() {
         panic!("Source is empty");
     }

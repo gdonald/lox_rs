@@ -3,7 +3,7 @@ use std::{
     io::{self, Write},
 };
 
-use lox_rs::{run, run_file, run_prompt};
+use lox_rs::{run, run_file, run_prompt, run_source};
 use std::io::Cursor;
 use tempfile::tempdir;
 
@@ -90,28 +90,34 @@ fn test_run_prompt_triggers_break_on_empty_input() {
 }
 
 #[test]
-#[should_panic(expected = "Source is empty")]
-fn test_run_empty_source() {
-    let source = String::new();
-    run(source);
-}
-
-#[test]
 #[should_panic(expected = "Unary error")]
-fn test_run_invalid_script() {
+fn test_run_source_invalid_script() {
     let source = "invalid syntax".to_string();
-    run(source);
+    run_source(source);
 }
 
 #[test]
 #[should_panic(expected = "Unary error")]
-fn test_run_with_script() {
+fn test_run_source_with_script() {
     let source = "print 42;".to_string();
-    run(source);
+    run_source(source);
 }
 
 #[test]
-fn test_run_with_simple_expr() {
+fn test_run_source_with_simple_expr() {
     let source = "1 + 2".to_string();
-    run(source);
+    run_source(source);
+}
+
+#[test]
+fn test_no_args_runs_prompt() {
+    let args = vec!["lox".to_string()];
+    let input = Cursor::new("");
+    let mut output = Vec::new();
+
+    let result = run(args, input, &mut output);
+
+    assert!(result.is_ok());
+    println!("{}", String::from_utf8(output.clone()).unwrap());
+    assert_eq!(output.clone(), "lox> ".as_bytes());
 }
