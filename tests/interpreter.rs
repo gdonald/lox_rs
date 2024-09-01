@@ -62,7 +62,7 @@ fn test_interpreter_literal_bool() {
 }
 
 #[test]
-fn test_interpreter_binary_addition() {
+fn test_interpreter_binary_addition_numbers() {
     let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
     let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
     let operator = Token::new(TokenType::Plus, "+".to_string(), None, 1);
@@ -78,6 +78,518 @@ fn test_interpreter_binary_addition() {
 
     assert_eq!(result.type_name, std::any::type_name::<f64>());
     assert_eq!(*result.value.downcast_ref::<f64>().unwrap(), 3.0);
+}
+
+#[test]
+fn test_interpreter_binary_addition_strings() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Str(" world".to_string())));
+    let operator = Token::new(TokenType::Plus, "+".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<String>());
+    assert_eq!(
+        *result.value.downcast_ref::<String>().unwrap(),
+        "hello world".to_string()
+    );
+}
+
+#[test]
+#[should_panic(
+    expected = "Operands Some(\"hello\"), None must be matching types for the Plus operation"
+)]
+fn test_interpreter_binary_addition_mismatch() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Plus, "+".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+fn test_interpreter_binary_subtraction_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let operator = Token::new(TokenType::Minus, "-".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<f64>());
+    assert_eq!(*result.value.downcast_ref::<f64>().unwrap(), 1.0);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the Minus operation")]
+fn test_interpreter_binary_subtraction_mismatch() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let operator = Token::new(TokenType::Minus, "-".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+fn test_interpreter_binary_division_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(4.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Slash, "/".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<f64>());
+    assert_eq!(*result.value.downcast_ref::<f64>().unwrap(), 2.0);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the Slash operation")]
+fn test_interpreter_binary_division_mismatch() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let operator = Token::new(TokenType::Slash, "/".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+fn test_interpreter_binary_multiplication_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(3.0)));
+    let operator = Token::new(TokenType::Star, "*".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<f64>());
+    assert_eq!(*result.value.downcast_ref::<f64>().unwrap(), 6.0);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the Star operation")]
+fn test_interpreter_binary_multiplication_mismatch() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let operator = Token::new(TokenType::Star, "*".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+#[should_panic(expected = "Unknown binary expression operator LeftParen")]
+fn test_interpreter_binary_unknown_token_type() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let operator = Token::new(TokenType::LeftParen, "(".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&expr);
+}
+
+#[test]
+fn test_interpreter_binary_equal_equal_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::EqualEqual, "==".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+fn test_interpreter_binary_equal_equal_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::EqualEqual, "==".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_bang_equal_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::BangEqual, "!=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_bang_equal_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::BangEqual, "!=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+fn test_interpreter_binary_greater_than_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(3.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Greater, ">".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_greater_than_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Greater, ">".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the Greater operation")]
+fn test_interpreter_binary_greater_than_panic_not_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Greater, ">".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+fn test_interpreter_binary_greater_than_equal_true_different() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(3.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::GreaterEqual, ">=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_greater_than_equal_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::GreaterEqual, ">=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_greater_than_equal_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::GreaterEqual, ">=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the GreaterEqual operation")]
+fn test_interpreter_binary_greater_than_equal_panic_not_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::GreaterEqual, ">=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+fn test_interpreter_binary_less_than_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Less, "<".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_less_than_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Less, "<".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the Less operation")]
+fn test_interpreter_binary_less_than_panic_not_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::Less, "<".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+fn test_interpreter_binary_less_than_equal_true_different() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(1.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::LessEqual, "<=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_less_than_equal_true() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::LessEqual, "<=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpreter_binary_less_than_equal_false() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Num(3.0)));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::LessEqual, "<=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Operands must be numbers for the LessEqual operation")]
+fn test_interpreter_binary_less_than_equal_panic_not_numbers() {
+    let left = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let right = Expr::Literal(Box::new(LiteralExpr::Num(2.0)));
+    let operator = Token::new(TokenType::LessEqual, "<=".to_string(), None, 1);
+
+    let expr = Expr::Binary(Box::new(BinaryExpr {
+        left: Box::new(left),
+        operator,
+        right: Box::new(right),
+    }));
+
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&expr);
+
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.value.downcast_ref::<bool>().unwrap(), false);
 }
 
 #[test]

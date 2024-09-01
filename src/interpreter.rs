@@ -192,7 +192,10 @@ impl Visitor<Object> for Interpreter {
                 }
             }
             _ => {
-                panic!("Unknown operator {:?}", expr.operator.token_type);
+                panic!(
+                    "Unknown binary expression operator {:?}",
+                    expr.operator.token_type
+                );
             }
         }
     }
