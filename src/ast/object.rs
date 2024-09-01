@@ -22,7 +22,11 @@ impl Object {
         if self.type_name == std::any::type_name::<T>() {
             self.value.downcast_ref::<T>()
         } else {
-            println!("Expected type {}, found type {}", type_name::<T>(), self.type_name);
+            println!(
+                "Expected type {}, found type {}",
+                type_name::<T>(),
+                self.type_name
+            );
             None
         }
     }

@@ -375,10 +375,7 @@ fn test_scan_integer_number() {
     assert_eq!(scanner.tokens.len(), 1);
     assert_eq!(scanner.tokens[0].token_type, TokenType::Number);
     assert_eq!(scanner.tokens[0].lexeme, "12345");
-    assert_eq!(
-        scanner.tokens[0].literal,
-        Some(LiteralExpr::Num(12345.0))
-    );
+    assert_eq!(scanner.tokens[0].literal, Some(LiteralExpr::Num(12345.0)));
 }
 
 #[test]
@@ -390,10 +387,7 @@ fn test_scan_float_number() {
     assert_eq!(scanner.tokens.len(), 1);
     assert_eq!(scanner.tokens[0].token_type, TokenType::Number);
     assert_eq!(scanner.tokens[0].lexeme, "123.456");
-    assert_eq!(
-        scanner.tokens[0].literal,
-        Some(LiteralExpr::Num(123.456))
-    );
+    assert_eq!(scanner.tokens[0].literal, Some(LiteralExpr::Num(123.456)));
 }
 
 #[test]
@@ -405,10 +399,7 @@ fn test_scan_number_with_trailing_dot() {
     assert_eq!(scanner.tokens.len(), 1);
     assert_eq!(scanner.tokens[0].token_type, TokenType::Number);
     assert_eq!(scanner.tokens[0].lexeme, "123");
-    assert_eq!(
-        scanner.tokens[0].literal,
-        Some(LiteralExpr::Num(123.0))
-    );
+    assert_eq!(scanner.tokens[0].literal, Some(LiteralExpr::Num(123.0)));
 }
 
 #[test]
@@ -420,10 +411,7 @@ fn test_scan_number_with_leading_dot() {
     assert_eq!(scanner.tokens.len(), 1);
     assert_eq!(scanner.tokens[0].token_type, TokenType::Number);
     assert_eq!(scanner.tokens[0].lexeme, ".456");
-    assert_eq!(
-        scanner.tokens[0].literal,
-        Some(LiteralExpr::Num(0.456))
-    );
+    assert_eq!(scanner.tokens[0].literal, Some(LiteralExpr::Num(0.456)));
 }
 
 #[test]
@@ -446,8 +434,8 @@ fn test_is_digit_with_non_digits() {
 #[test]
 fn test_is_digit_with_boundary_cases() {
     let scanner = Scanner::new("".to_string(), ScanError::new());
-    assert!(scanner.is_digit('0'));  // Lower boundary
-    assert!(scanner.is_digit('9'));  // Upper boundary
+    assert!(scanner.is_digit('0')); // Lower boundary
+    assert!(scanner.is_digit('9')); // Upper boundary
     assert!(!scanner.is_digit('/')); // Just before '0'
     assert!(!scanner.is_digit(':')); // Just after '9'
 }
@@ -696,7 +684,10 @@ fn test_add_token_with_minus() {
 fn test_add_token_with_literal_string() {
     let mut scanner = Scanner::new("\"hello\"".to_string(), ScanError::new());
     scanner.current = 7; // Simulating the end of the string literal
-    scanner.add_token_with_literal(TokenType::String, Some(LiteralExpr::Str("hello".to_string())));
+    scanner.add_token_with_literal(
+        TokenType::String,
+        Some(LiteralExpr::Str("hello".to_string())),
+    );
 
     assert_eq!(scanner.tokens.len(), 1);
     assert_eq!(scanner.tokens[0].token_type, TokenType::String);

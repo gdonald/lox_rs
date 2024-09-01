@@ -191,3 +191,47 @@ fn test_is_equal_different_types() {
     let interpreter = Interpreter;
     assert!(!interpreter.is_equal(&obj1, &obj2));
 }
+
+#[test]
+fn test_interpret_string_literal() {
+    let literal_expr = Expr::Literal(Box::new(LiteralExpr::Str("hello".to_string())));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&literal_expr);
+    assert_eq!(result.type_name, std::any::type_name::<String>());
+    assert_eq!(result.get_value::<String>().unwrap(), "hello");
+}
+
+#[test]
+fn test_interpret_number_literal() {
+    let literal_expr = Expr::Literal(Box::new(LiteralExpr::Num(42.0)));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&literal_expr);
+    assert_eq!(result.type_name, std::any::type_name::<f64>());
+    assert_eq!(*result.get_value::<f64>().unwrap(), 42.0);
+}
+
+#[test]
+fn test_interpret_boolean_true_literal() {
+    let literal_expr = Expr::Literal(Box::new(LiteralExpr::Bool(true)));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&literal_expr);
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.get_value::<bool>().unwrap(), true);
+}
+
+#[test]
+fn test_interpret_boolean_false_literal() {
+    let literal_expr = Expr::Literal(Box::new(LiteralExpr::Bool(false)));
+    let mut interpreter = Interpreter;
+    let result = interpreter.interpret(&literal_expr);
+    assert_eq!(result.type_name, std::any::type_name::<bool>());
+    assert_eq!(*result.get_value::<bool>().unwrap(), false);
+}
+
+#[test]
+#[should_panic(expected = "Unhandled literal expression type")]
+fn test_interpret_unhandled_literal_type() {
+    let literal_expr = Expr::Literal(Box::new(LiteralExpr::Nil));
+    let mut interpreter = Interpreter;
+    interpreter.interpret(&literal_expr);
+}

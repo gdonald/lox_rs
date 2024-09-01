@@ -1,5 +1,5 @@
-use lox_rs::ast::expr::{Expr, BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr};
 use lox_rs::ast::expr::Visitor;
+use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use lox_rs::ast::token::{Token, TokenType};
 
 #[test]
@@ -223,7 +223,9 @@ fn test_create_grouping_expr_with_binary() {
             if let LiteralExpr::Num(left_value) = *left {
                 assert_eq!(left_value, 1.0);
             } else {
-                panic!("Expected LiteralExpr::Num on the left side of BinaryExpr within GroupingExpr");
+                panic!(
+                    "Expected LiteralExpr::Num on the left side of BinaryExpr within GroupingExpr"
+                );
             }
         } else {
             panic!("Expected Expr::Literal on the left side of BinaryExpr within GroupingExpr");
@@ -233,7 +235,9 @@ fn test_create_grouping_expr_with_binary() {
             if let LiteralExpr::Num(right_value) = *right {
                 assert_eq!(right_value, 2.0);
             } else {
-                panic!("Expected LiteralExpr::Num on the right side of BinaryExpr within GroupingExpr");
+                panic!(
+                    "Expected LiteralExpr::Num on the right side of BinaryExpr within GroupingExpr"
+                );
             }
         } else {
             panic!("Expected Expr::Literal on the right side of BinaryExpr within GroupingExpr");
@@ -303,7 +307,7 @@ fn test_create_unary_expr_with_minus_operator() {
 
     assert_eq!(unary_expr.operator.token_type, TokenType::Minus);
     assert_eq!(unary_expr.operator.lexeme, "-");
-    
+
     if let Expr::Literal(lit) = *unary_expr.right {
         if let LiteralExpr::Num(value) = *lit {
             assert_eq!(value, 42.0);
@@ -325,10 +329,10 @@ fn test_create_unary_expr_with_not_operator() {
     };
     let right_expr = Expr::Literal(Box::new(LiteralExpr::Bool(true)));
     let unary_expr = UnaryExpr::new(operator.clone(), right_expr.clone());
-    
+
     assert_eq!(unary_expr.operator.token_type, TokenType::Bang);
     assert_eq!(unary_expr.operator.lexeme, "!");
-    
+
     if let Expr::Literal(lit) = *unary_expr.right {
         if let LiteralExpr::Bool(value) = *lit {
             assert!(value);
