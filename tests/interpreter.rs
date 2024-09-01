@@ -135,3 +135,59 @@ fn test_is_truthy_catchall() {
     let interpreter = Interpreter;
     assert_eq!(interpreter.is_truthy(&obj), true);
 }
+
+#[test]
+fn test_is_equal_f64_equal() {
+    let obj1 = Object::new(42.0);
+    let obj2 = Object::new(42.0);
+    let interpreter = Interpreter;
+    assert!(interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_f64_not_equal() {
+    let obj1 = Object::new(42.0);
+    let obj2 = Object::new(43.0);
+    let interpreter = Interpreter;
+    assert!(!interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_string_equal() {
+    let obj1 = Object::new("hello".to_string());
+    let obj2 = Object::new("hello".to_string());
+    let interpreter = Interpreter;
+    assert!(interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_string_not_equal() {
+    let obj1 = Object::new("hello".to_string());
+    let obj2 = Object::new("world".to_string());
+    let interpreter = Interpreter;
+    assert!(!interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_bool_equal() {
+    let obj1 = Object::new(true);
+    let obj2 = Object::new(true);
+    let interpreter = Interpreter;
+    assert!(interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_bool_not_equal() {
+    let obj1 = Object::new(true);
+    let obj2 = Object::new(false);
+    let interpreter = Interpreter;
+    assert!(!interpreter.is_equal(&obj1, &obj2));
+}
+
+#[test]
+fn test_is_equal_different_types() {
+    let obj1 = Object::new(42.0);
+    let obj2 = Object::new("42".to_string());
+    let interpreter = Interpreter;
+    assert!(!interpreter.is_equal(&obj1, &obj2));
+}
