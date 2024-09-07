@@ -121,3 +121,33 @@ fn test_no_args_runs_prompt() {
     println!("{}", String::from_utf8(output.clone()).unwrap());
     assert_eq!(output.clone(), "lox> ".as_bytes());
 }
+
+#[test]
+fn test_run_no_arguments() {
+    let args = vec!["lox".to_string()];
+    let input = Cursor::new("");
+    let mut output = Vec::new();
+
+    run(args, input, &mut output).unwrap();
+    let output_str = String::from_utf8(output).unwrap();
+    assert!(output_str.contains("lox>"));
+}
+
+#[test]
+fn test_run_with_script_argument() {
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    let mut temp_file = NamedTempFile::new().unwrap();
+    writeln!(temp_file, "1 + 2;").unwrap();
+
+    let file_path = temp_file.path().to_str().unwrap().to_string();
+    let args = vec!["lox".to_string(), file_path];
+    let input = Cursor::new("");
+    let mut output = Vec::new();
+
+    run(args, input, &mut output).unwrap();
+
+    let output_str = String::from_utf8(output).unwrap();
+    assert!(output_str.is_empty());
+}
