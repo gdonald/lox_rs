@@ -1,11 +1,18 @@
 use std::{
+    cell::RefCell,
     fs::File,
     io::{self, Write},
+    panic::AssertUnwindSafe,
 };
 
 use lox_rs::{run, run_file, run_prompt, run_source};
 use std::io::Cursor;
+use std::panic::catch_unwind;
 use tempfile::tempdir;
+
+fn mock_exit(_code: i32) {
+    panic!("Exit called");
+}
 
 #[test]
 fn test_run_file_success() {
@@ -115,7 +122,7 @@ fn test_no_args_runs_prompt() {
     let input = Cursor::new("");
     let mut output = Vec::new();
 
-    let result = run(args, input, &mut output);
+    let result = run(args, input, &mut output, mock_exit);
 
     assert!(result.is_ok());
     println!("{}", String::from_utf8(output.clone()).unwrap());
@@ -128,7 +135,7 @@ fn test_run_no_arguments() {
     let input = Cursor::new("");
     let mut output = Vec::new();
 
-    run(args, input, &mut output).unwrap();
+    run(args, input, &mut output, mock_exit).unwrap();
     let output_str = String::from_utf8(output).unwrap();
     assert!(output_str.contains("lox>"));
 }
@@ -146,8 +153,27 @@ fn test_run_with_script_argument() {
     let input = Cursor::new("");
     let mut output = Vec::new();
 
-    run(args, input, &mut output).unwrap();
+    run(args, input, &mut output, mock_exit).unwrap();
 
     let output_str = String::from_utf8(output).unwrap();
     assert!(output_str.is_empty());
+}
+
+#[test]
+fn test_run_too_many_arguments() {
+    let args = vec![
+        "lox".to_string(),
+        "script.lox".to_string(),
+        "extra_argument".to_string(),
+    ];
+    let input = Cursor::new(""); // Simulating no input
+    let output = RefCell::new(Vec::new()); // Wrap output in RefCell
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        run(args, input, &mut *output.borrow_mut(), mock_exit) // Dereference RefMut to &mut Vec<u8>
+    }));
+
+    assert!(result.is_err());
+    let output_str = String::from_utf8(output.borrow().to_vec()).unwrap();
+    assert!(output_str.contains("Usage: lox [script]"));
 }
