@@ -1,4 +1,4 @@
-use std::any::{type_name, Any};
+use std::any::Any;
 
 #[derive(Debug)]
 pub struct Object {
@@ -22,11 +22,6 @@ impl Object {
         if self.type_name == std::any::type_name::<T>() {
             self.value.downcast_ref::<T>()
         } else {
-            println!(
-                "Expected type {}, found type {}",
-                type_name::<T>(),
-                self.type_name
-            );
             None
         }
     }

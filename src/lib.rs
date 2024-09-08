@@ -63,3 +63,13 @@ pub fn run_source(source: String) {
     let obj = interpreter.interpret(&expression);
     println!("{}", obj.to_string());
 }
+
+pub fn run_main(
+    args: Vec<String>,
+    stdin: impl io::BufRead,
+    stdout: impl io::Write,
+    exit: impl Fn(i32),
+) -> io::Result<()> {
+    let exit_code = run(args, stdin, stdout, exit);
+    exit_code
+}

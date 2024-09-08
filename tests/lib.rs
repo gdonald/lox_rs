@@ -5,7 +5,7 @@ use std::{
     panic::AssertUnwindSafe,
 };
 
-use lox_rs::{run, run_file, run_prompt, run_source};
+use lox_rs::{run, run_file, run_main, run_prompt, run_source};
 use std::io::Cursor;
 use std::panic::catch_unwind;
 use tempfile::tempdir;
@@ -166,14 +166,63 @@ fn test_run_too_many_arguments() {
         "script.lox".to_string(),
         "extra_argument".to_string(),
     ];
-    let input = Cursor::new(""); // Simulating no input
-    let output = RefCell::new(Vec::new()); // Wrap output in RefCell
+    let input = Cursor::new("");
+    let output = RefCell::new(Vec::new());
 
     let result = catch_unwind(AssertUnwindSafe(|| {
-        run(args, input, &mut *output.borrow_mut(), mock_exit) // Dereference RefMut to &mut Vec<u8>
+        run(args, input, &mut *output.borrow_mut(), mock_exit)
     }));
 
     assert!(result.is_err());
     let output_str = String::from_utf8(output.borrow().to_vec()).unwrap();
     assert!(output_str.contains("Usage: lox [script]"));
+}
+
+#[test]
+fn test_run_main_with_too_many_arguments() {
+    let args = vec![
+        "lox".to_string(),
+        "script.lox".to_string(),
+        "extra_arg".to_string(),
+    ];
+    let input = Cursor::new("");
+    let output = RefCell::new(Vec::new());
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        run_main(args, input, &mut *output.borrow_mut(), mock_exit)
+    }));
+
+    assert!(result.is_err());
+
+    let output_str = String::from_utf8(output.borrow().to_vec()).unwrap();
+    assert!(output_str.contains("Usage: lox [script]"));
+}
+
+#[test]
+fn test_run_main_with_script_argument() {
+    let args = vec!["lox".to_string(), "script.lox".to_string()];
+    let input = Cursor::new("");
+    let output = RefCell::new(Vec::new());
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        run_main(args, input, &mut *output.borrow_mut(), mock_exit)
+    }));
+
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_run_main_with_no_arguments() {
+    let args = vec!["lox".to_string()];
+    let input = Cursor::new("");
+    let output = RefCell::new(Vec::new());
+
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        run_main(args, input, &mut *output.borrow_mut(), mock_exit)
+    }));
+
+    assert!(result.is_ok());
+
+    let output_str = String::from_utf8(output.borrow().to_vec()).unwrap();
+    assert!(output_str.contains("lox>"));
 }
