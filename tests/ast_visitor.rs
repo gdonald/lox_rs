@@ -1,4 +1,5 @@
 use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr, Visitor};
+use lox_rs::ast::stmt::{ExpressionStmt, PrintStmt};
 use lox_rs::ast::token::{Token, TokenType};
 
 struct MockVisitor {
@@ -24,6 +25,16 @@ impl Visitor<String> for MockVisitor {
     fn visit_unary_expr(&mut self, _expr: &UnaryExpr) -> String {
         self.log.push("Visited UnaryExpr".to_string());
         "UnaryExpr".to_string()
+    }
+
+    fn visit_expression_stmt(&mut self, stmt: &ExpressionStmt) -> String {
+        self.log.push("Visited ExpressionStmt".to_string());
+        "ExpressionStmt".to_string()
+    }
+
+    fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> String {
+        self.log.push("Visited PrintStmt".to_string());
+        "PrintStmt".to_string()
     }
 }
 

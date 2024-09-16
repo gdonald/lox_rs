@@ -1,5 +1,7 @@
 use crate::ast::token::Token;
 
+use super::stmt::{ExpressionStmt, PrintStmt};
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Binary(Box<BinaryExpr>),
@@ -115,4 +117,6 @@ pub trait Visitor<R> {
     fn visit_grouping_expr(&mut self, expr: &GroupingExpr) -> R;
     fn visit_literal_expr(&mut self, expr: &LiteralExpr) -> R;
     fn visit_unary_expr(&mut self, expr: &UnaryExpr) -> R;
+    fn visit_expression_stmt(&mut self, stmt: &ExpressionStmt) -> R;
+    fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> R;
 }

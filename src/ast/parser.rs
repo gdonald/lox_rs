@@ -1,6 +1,8 @@
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::token::{Token, TokenType};
 use std::cell::Cell;
+
+use super::stmt::{ExpressionStmt, PrintStmt, Stmt};
 #[derive(Debug)]
 pub struct ParseError;
 
@@ -27,14 +29,38 @@ impl Parser {
         }
     }
 
-    pub fn parse(&mut self) -> Option<Expr> {
-        let expr = self.expression();
-
-        if self.error.get() {
-            None
-        } else {
-            Some(expr)
+    pub fn parse(&mut self) -> Vec<Stmt> {
+        let mut statements = Vec::new();
+        while !self.is_at_end() {
+            statements.push(self.statement());
         }
+        statements
+    }
+
+    pub fn statement(&mut self) -> Stmt {
+        if self.match_tokens(&[TokenType::Print]) {
+            return self.print_statement();
+        }
+
+        self.expression_statement()
+    }
+
+    pub fn print_statement(&mut self) -> Stmt {
+        let expression = self.expression();
+        self.consume(TokenType::Semicolon, "Expect ';' after value.");
+
+        Stmt::Print(PrintStmt {
+            expression: expression,
+        })
+    }
+
+    pub fn expression_statement(&mut self) -> Stmt {
+        let expression = self.expression();
+        self.consume(TokenType::Semicolon, "Expect ';' after expression.");
+
+        Stmt::Expression(ExpressionStmt {
+            expression: expression,
+        })
     }
 
     pub fn synchronize(&mut self) {
@@ -147,10 +173,7 @@ impl Parser {
         if self.match_tokens(&[TokenType::Number, TokenType::String]) {
             let literal = self.previous().literal.clone().unwrap();
             return match literal {
-                LiteralExpr::Str(s) => s
-                    .parse::<f64>()
-                    .map(|num| Expr::Literal(Box::new(LiteralExpr::Num(num))))
-                    .map_err(|_| "Failed to parse string to f64".to_string()),
+                LiteralExpr::Str(s) => Ok(Expr::Literal(Box::new(LiteralExpr::Str(s)))),
                 LiteralExpr::Num(n) => Ok(Expr::Literal(Box::new(LiteralExpr::Num(n)))),
                 _ => Err("Unexpected literal type".to_string()),
             };

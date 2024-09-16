@@ -104,7 +104,6 @@ fn test_run_source_invalid_script() {
 }
 
 #[test]
-#[should_panic(expected = "Unary error")]
 fn test_run_source_with_script() {
     let source = "print 42;".to_string();
     run_source(source);

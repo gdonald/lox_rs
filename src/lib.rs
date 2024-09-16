@@ -51,17 +51,10 @@ pub fn run_source(source: String) {
     let mut scanner = Scanner::new(source, ScanError::new());
     let tokens = scanner.scan_tokens();
     let mut parser = Parser::new(tokens);
-
-    let expression = match parser.parse() {
-        Some(expr) => expr,
-        None => {
-            return;
-        }
-    };
+    let statements = parser.parse();
 
     let mut interpreter = Interpreter;
-    let obj = interpreter.interpret(&expression);
-    println!("{}", obj.to_string());
+    interpreter.interpret(statements);
 }
 
 pub fn run_main(

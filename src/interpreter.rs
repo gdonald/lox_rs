@@ -3,6 +3,7 @@ use core::panic;
 use crate::ast::expr::Visitor;
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::object::Object;
+use crate::ast::stmt::{ExpressionStmt, PrintStmt, Stmt};
 use crate::ast::token::{Token, TokenType};
 
 pub struct RuntimeError {
@@ -19,8 +20,14 @@ impl RuntimeError {
 pub struct Interpreter;
 
 impl Interpreter {
-    pub fn interpret(&mut self, expression: &Expr) -> Object {
-        self.evaluate(expression.clone())
+    pub fn interpret(&mut self, statements: Vec<Stmt>) {
+        statements.iter().for_each(|stmt| {
+            self.execute(stmt.clone());
+        });
+    }
+
+    pub fn execute(&mut self, stmt: Stmt) {
+        stmt.accept(self);
     }
 
     pub fn evaluate(&mut self, expr: Expr) -> Object {
@@ -220,5 +227,18 @@ impl Visitor<Object> for Interpreter {
                 panic!("Unknown unary token type {:?}", expr.operator.token_type);
             }
         }
+    }
+
+    fn visit_expression_stmt(&mut self, stmt: &ExpressionStmt) -> Object {
+        self.evaluate(stmt.expression.clone());
+
+        Object::new(())
+    }
+
+    fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> Object {
+        let value = self.evaluate(stmt.expression.clone());
+        println!("{}", value.to_string());
+
+        Object::new(())
     }
 }

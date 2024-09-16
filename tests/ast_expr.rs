@@ -62,6 +62,14 @@ impl Visitor<String> for MockVisitor {
     fn visit_unary_expr(&mut self, _expr: &UnaryExpr) -> String {
         "Visited UnaryExpr".to_string()
     }
+
+    fn visit_expression_stmt(&mut self, stmt: &lox_rs::ast::stmt::ExpressionStmt) -> String {
+        "Visited ExpressionStmt".to_string()
+    }
+
+    fn visit_print_stmt(&mut self, stmt: &lox_rs::ast::stmt::PrintStmt) -> String {
+        "Visited PrintStmt".to_string()
+    }
 }
 
 #[test]

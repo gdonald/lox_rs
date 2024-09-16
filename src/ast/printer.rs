@@ -1,6 +1,8 @@
 use crate::ast::expr::Visitor;
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 
+use super::stmt::{ExpressionStmt, PrintStmt};
+
 pub struct Printer;
 
 impl Printer {
@@ -44,5 +46,13 @@ impl Visitor<String> for Printer {
 
     fn visit_unary_expr(&mut self, expr: &UnaryExpr) -> String {
         self.parenthesize(&expr.operator.lexeme, &[&expr.right])
+    }
+
+    fn visit_expression_stmt(&mut self, stmt: &ExpressionStmt) -> String {
+        todo!()
+    }
+
+    fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> String {
+        todo!()
     }
 }
