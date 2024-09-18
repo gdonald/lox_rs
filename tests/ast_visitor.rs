@@ -1,5 +1,7 @@
-use lox_rs::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr, Visitor};
-use lox_rs::ast::stmt::{ExpressionStmt, PrintStmt};
+use lox_rs::ast::expr::{
+    BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr, VariableExpr, Visitor,
+};
+use lox_rs::ast::stmt::{ExpressionStmt, PrintStmt, VarStmt};
 use lox_rs::ast::token::{Token, TokenType};
 
 struct MockVisitor {
@@ -35,6 +37,16 @@ impl Visitor<String> for MockVisitor {
     fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> String {
         self.log.push("Visited PrintStmt".to_string());
         "PrintStmt".to_string()
+    }
+
+    fn visit_var_stmt(&mut self, stmt: &VarStmt) -> String {
+        self.log.push("Visited VarStmt".to_string());
+        "VarStmt".to_string()
+    }
+
+    fn visit_variable_expr(&mut self, expr: &VariableExpr) -> String {
+        self.log.push("Visited VariableExpr".to_string());
+        "VariableExpr".to_string()
     }
 }
 

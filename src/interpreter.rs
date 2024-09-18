@@ -1,9 +1,9 @@
 use core::panic;
 
-use crate::ast::expr::Visitor;
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
+use crate::ast::expr::{VariableExpr, Visitor};
 use crate::ast::object::Object;
-use crate::ast::stmt::{ExpressionStmt, PrintStmt, Stmt};
+use crate::ast::stmt::{ExpressionStmt, PrintStmt, Stmt, VarStmt};
 use crate::ast::token::{Token, TokenType};
 
 pub struct RuntimeError {
@@ -240,5 +240,13 @@ impl Visitor<Object> for Interpreter {
         println!("{}", value.to_string());
 
         Object::new(())
+    }
+
+    fn visit_var_stmt(&mut self, stmt: &VarStmt) -> Object {
+        todo!();
+    }
+
+    fn visit_variable_expr(&mut self, expr: &VariableExpr) -> Object {
+        todo!()
     }
 }

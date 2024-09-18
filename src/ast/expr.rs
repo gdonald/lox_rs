@@ -1,12 +1,13 @@
 use crate::ast::token::Token;
 
-use super::stmt::{ExpressionStmt, PrintStmt};
+use super::stmt::{ExpressionStmt, PrintStmt, VarStmt};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Binary(Box<BinaryExpr>),
     Grouping(Box<GroupingExpr>),
     Literal(Box<LiteralExpr>),
+    Variable(Box<VariableExpr>),
     Unary(Box<UnaryExpr>),
     Unhandled,
 }
@@ -18,6 +19,7 @@ impl Expr {
             Expr::Grouping(expr) => visitor.visit_grouping_expr(expr),
             Expr::Literal(expr) => visitor.visit_literal_expr(expr),
             Expr::Unary(expr) => visitor.visit_unary_expr(expr),
+            Expr::Variable(expr) => visitor.visit_variable_expr(expr),
             _ => {
                 panic!("Unhandled expression type")
             }
@@ -98,6 +100,17 @@ impl From<bool> for LiteralExpr {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct VariableExpr {
+    pub name: Token,
+}
+
+impl VariableExpr {
+    pub fn new(name: Token) -> Self {
+        Self { name }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpr {
     pub operator: Token,
     pub right: Box<Expr>,
@@ -119,4 +132,6 @@ pub trait Visitor<R> {
     fn visit_unary_expr(&mut self, expr: &UnaryExpr) -> R;
     fn visit_expression_stmt(&mut self, stmt: &ExpressionStmt) -> R;
     fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> R;
+    fn visit_var_stmt(&mut self, stmt: &VarStmt) -> R;
+    fn visit_variable_expr(&mut self, expr: &VariableExpr) -> R;
 }

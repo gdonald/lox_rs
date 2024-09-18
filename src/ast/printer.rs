@@ -1,7 +1,8 @@
 use crate::ast::expr::Visitor;
 use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 
-use super::stmt::{ExpressionStmt, PrintStmt};
+use super::expr::VariableExpr;
+use super::stmt::{ExpressionStmt, PrintStmt, VarStmt};
 
 pub struct Printer;
 
@@ -53,6 +54,14 @@ impl Visitor<String> for Printer {
     }
 
     fn visit_print_stmt(&mut self, stmt: &PrintStmt) -> String {
+        todo!()
+    }
+
+    fn visit_var_stmt(&mut self, stmt: &VarStmt) -> String {
+        todo!()
+    }
+
+    fn visit_variable_expr(&mut self, expr: &VariableExpr) -> String {
         todo!()
     }
 }
