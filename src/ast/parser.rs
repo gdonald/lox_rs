@@ -2,7 +2,7 @@ use crate::ast::expr::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr};
 use crate::ast::token::{Token, TokenType};
 use std::cell::Cell;
 
-use super::stmt::{ExpressionStmt, PrintStmt, Stmt};
+use super::stmt::{ExpressionStmt, PrintStmt, Stmt, VarStmt};
 #[derive(Debug)]
 pub struct ParseError;
 
@@ -31,10 +31,43 @@ impl Parser {
 
     pub fn parse(&mut self) -> Vec<Stmt> {
         let mut statements = Vec::new();
+
         while !self.is_at_end() {
-            statements.push(self.statement());
+            let stmt = self.declaration();
+
+            statements.push(stmt);
         }
+
         statements
+    }
+
+    pub fn declaration(&mut self) -> Stmt {
+        if self.match_tokens(&[TokenType::Var]) {
+            return self.var_declaration();
+        }
+
+        self.statement()
+    }
+
+    pub fn var_declaration(&mut self) -> Stmt {
+        let result = self.consume(TokenType::Identifier, "Expect variable name.");
+        let name = result.unwrap().clone();
+
+        let initializer = if self.match_tokens(&[TokenType::Equal]) {
+            Some(self.expression())
+        } else {
+            None
+        };
+
+        let _ = self.consume(
+            TokenType::Semicolon,
+            "Expect ';' after variable declaration.",
+        );
+
+        Stmt::Var(VarStmt {
+            name: name,
+            initializer: initializer.unwrap(),
+        })
     }
 
     pub fn statement(&mut self) -> Stmt {
